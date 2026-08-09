@@ -4,7 +4,8 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
-const projectRoutes = require('./routes/projectRoutes'); // 1. Import Project Routes
+const projectRoutes = require('./routes/projectRoutes');
+const messageRoutes = require('./routes/messageRoutes'); // 1. Import Message Routes
 
 dotenv.config();
 
@@ -22,7 +23,8 @@ app.use(cookieParser());
 
 // Mount Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/projects', projectRoutes); // 2. Mount Project Routes
+app.use('/api/projects', projectRoutes);
+app.use('/api/messages', messageRoutes); // 2. Mount Message Routes
 
 app.get('/', (req, res) => {
   res.status(200).json({
