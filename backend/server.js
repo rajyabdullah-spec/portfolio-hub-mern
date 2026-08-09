@@ -5,7 +5,8 @@ const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const projectRoutes = require('./routes/projectRoutes');
-const messageRoutes = require('./routes/messageRoutes'); // 1. Import Message Routes
+const messageRoutes = require('./routes/messageRoutes');
+const { notFound, errorHandler } = require('./middlewares/errorMiddleware'); // 1. Import Error Middlewares
 
 dotenv.config();
 
@@ -24,7 +25,7 @@ app.use(cookieParser());
 // Mount Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
-app.use('/api/messages', messageRoutes); // 2. Mount Message Routes
+app.use('/api/messages', messageRoutes);
 
 app.get('/', (req, res) => {
   res.status(200).json({
@@ -32,6 +33,10 @@ app.get('/', (req, res) => {
     message: 'Portfolio Hub API is running smoothly...'
   });
 });
+
+// Custom Error Middlewares (Must be placed after all routes)
+app.use(notFound);      // 2. Catch 404 routes
+app.use(errorHandler);  // 3. Catch custom & system errors
 
 const PORT = process.env.PORT || 5000;
 
