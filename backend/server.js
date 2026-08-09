@@ -2,8 +2,13 @@ const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const connectDB = require('./config/db');
+const authRoutes = require('./routes/authRoutes');
+const projectRoutes = require('./routes/projectRoutes'); // 1. Import Project Routes
 
 dotenv.config();
+
+connectDB();
 
 const app = express();
 
@@ -14,6 +19,10 @@ app.use(cors({
   credentials: true
 }));
 app.use(cookieParser());
+
+// Mount Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/projects', projectRoutes); // 2. Mount Project Routes
 
 app.get('/', (req, res) => {
   res.status(200).json({
