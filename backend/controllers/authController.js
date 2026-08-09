@@ -1,97 +1,92 @@
 const User = require('../models/User');
-const bcrypt = require('bcryptjs');
-const generateToken = require('../utils/generateToken');
 
-// @desc    Auth user & get token (Login)
-// @route   POST /api/auth/login
-// @access  Public
-const loginUser = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email }).select('+password');
+// Helper to send token in HTTP-Only Cookie
+const sendTokenResponse = (user, statusCode, res) => {
+  const token = user.getSignedJwtToken();
 
-    if (user && (await bcrypt.compare(password, user.password))) {
-      generateToken(res, user._id);
-      res.status(200).json({
-        success: true,
-        data: {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-        },
-      });
-    } else {
-      res.status(401).json({ success: false, message: 'Invalid email or password' });
-    }
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
+  const options = {
+    expires: new Date(
+      Date.now() + (process.env.JWT_COOKIE_EXPIRE || 30) * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+  };
+
+  res
+    .status(statusCode)
+    .cookie('token', token, options)
+    .json({
+      success: true,
+      data: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
 };
 
-// @desc    Register initial Admin user
+// @desc    Register user
 // @route   POST /api/auth/register
 // @access  Public
-const registerUser = async (req, res) => {
+exports.register = async (req, res, next) => {
   try {
-    const { name, email, password } = req.body;
-    const userExists = await User.findOne({ email });
-
-    if (userExists) {
-      return res.status(400).json({ success: false, message: 'User already exists' });
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    const user = await User.create({
-      name,
-      email,
-      password: hashedPassword,
-      role: 'admin',
-    });
-
-    if (user) {
-      generateToken(res, user._id);
-      res.status(201).json({
-        success: true,
-        data: {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-        },
-      });
-    }
+    const { name, email, password, role } = req.body;
+    const user = await User.create({ name, email, password, role });
+    sendTokenResponse(user, 201, res);
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-// @desc    Logout user
-// @route   POST /api/auth/logout
-// @access  Private
-const logoutUser = (req, res) => {
-  res.cookie('jwt', '', {
-    httpOnly: true,
-    expires: new Date(0),
-  });
-  res.status(200).json({ success: true, message: 'Logged out successfully' });
+// @desc    Login user
+// @route   POST /api/auth/login
+// @access  Public
+exports.login = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: 'Please provide email and password' });
+    }
+
+    const user = await User.findOne({ email }).select('+password');
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
+
+    const isMatch = await user.matchPassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
+
+    sendTokenResponse(user, 200, res);
+  } catch (error) {
+    next(error);
+  }
 };
 
-// @desc    Get current user profile
+// @desc    Get current logged in user
 // @route   GET /api/auth/me
 // @access  Private
-const getUserProfile = async (req, res) => {
-  res.status(200).json({
-    success: true,
-    data: req.user,
-  });
+exports.getMe = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id);
+    res.status(200).json({ success: true, data: user });
+  } catch (error) {
+    next(error);
+  }
 };
 
-module.exports = {
-  loginUser,
-  registerUser,
-  logoutUser,
-  getUserProfile,
+// @desc    Log user out / clear cookie
+// @route   POST /api/auth/logout
+// @access  Private
+exports.logout = async (req, res, next) => {
+  res.cookie('token', 'none', {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true,
+  });
+
+  res.status(200).json({ success: true, data: {} });
 };

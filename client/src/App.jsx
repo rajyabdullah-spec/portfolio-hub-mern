@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
@@ -9,11 +9,31 @@ import AboutAndSkills from './components/AboutAndSkills';
 import ProjectsGrid from './components/ProjectsGrid';
 import ContactForm from './components/ContactForm';
 import LoginPage from './pages/LoginPage';
+import AdminDashboard from './pages/AdminDashboard';
+
+// Helper component to handle auto-scroll on location hash change
+const ScrollToHash = () => {
+  const { hash } = useLocation();
+
+  useEffect(() => {
+    if (hash) {
+      setTimeout(() => {
+        const element = document.querySelector(hash);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    }
+  }, [hash]);
+
+  return null;
+};
 
 function App() {
   return (
     <AuthProvider>
       <Router>
+        <ScrollToHash />
         <div className="min-h-screen flex flex-col justify-between bg-slate-950 text-slate-100">
           <Navbar />
           <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -34,9 +54,7 @@ function App() {
                 path="/admin" 
                 element={
                   <ProtectedRoute>
-                    <div className="p-8 text-center text-emerald-400 font-bold text-2xl">
-                      🎉 Welcome Admin! Protected Dashboard area initialized.
-                    </div>
+                    <AdminDashboard />
                   </ProtectedRoute>
                 } 
               />
