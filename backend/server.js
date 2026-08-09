@@ -2,27 +2,63 @@ const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+
 const connectDB = require('./config/db');
+const seedAdminUser = require('./utils/seeder');
+
 const authRoutes = require('./routes/authRoutes');
 const projectRoutes = require('./routes/projectRoutes');
 const messageRoutes = require('./routes/messageRoutes');
-const { notFound, errorHandler } = require('./middlewares/errorMiddleware'); // 1. Import Error Middlewares
+const { notFound, errorHandler } = require('./middlewares/errorMiddleware');
 
 dotenv.config();
 
-connectDB();
+// Connect to MongoDB Atlas
+connectDB().then(() => {
+  // Seed default admin account after DB connection
+  seedAdminUser();
+});
 
 const app = express();
 
+// Security Middlewares
+app.use(helmet());
+
+// Rate Limiting (100 requests per 15 minutes per IP)
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: {
+    success: false,
+    message: 'Too many requests from this IP, please try again after 15 minutes',
+  },
+});
+app.use('/api', limiter);
+
+// Core Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors({
-  origin: 'http://localhost:5173',
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: 'http://localhost:5173',
+    credentials: true,
+  })
+);
 app.use(cookieParser());
 
-// Mount Routes
+// System Health Check Endpoint
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    success: true,
+    status: 'Healthy',
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/messages', messageRoutes);
@@ -30,13 +66,13 @@ app.use('/api/messages', messageRoutes);
 app.get('/', (req, res) => {
   res.status(200).json({
     success: true,
-    message: 'Portfolio Hub API is running smoothly...'
+    message: 'Portfolio Hub API is running smoothly...',
   });
 });
 
-// Custom Error Middlewares (Must be placed after all routes)
-app.use(notFound);      // 2. Catch 404 routes
-app.use(errorHandler);  // 3. Catch custom & system errors
+// Custom Error Middlewares
+app.use(notFound);
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
