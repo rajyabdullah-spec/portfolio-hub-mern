@@ -17,7 +17,6 @@ dotenv.config();
 
 // Connect to MongoDB Atlas
 connectDB().then(() => {
-  // Seed default admin account after DB connection
   seedAdminUser();
 });
 
@@ -38,14 +37,14 @@ const limiter = rateLimit({
 app.use('/api', limiter);
 
 // Core Middlewares
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
     origin: 'http://localhost:5173',
     credentials: true,
   })
 );
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // System Health Check Endpoint

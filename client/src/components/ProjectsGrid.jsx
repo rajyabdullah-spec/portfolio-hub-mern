@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { FolderGit2, ExternalLink, Code2, Loader2 } from 'lucide-react';
+import { FolderGit2, Loader2 } from 'lucide-react';
+import ProjectCard3D from './ProjectCard3D';
 
 const ProjectsGrid = () => {
   const [projects, setProjects] = useState([]);
@@ -11,7 +12,7 @@ const ProjectsGrid = () => {
     const fetchProjects = async () => {
       try {
         const response = await axios.get('http://localhost:5000/api/projects');
-        setProjects(response.data.data);
+        setProjects(response.data.data || []);
       } catch (err) {
         setError('Failed to fetch projects from backend API.');
       } finally {
@@ -30,6 +31,9 @@ const ProjectsGrid = () => {
           <span>PORTFOLIO WORK</span>
         </div>
         <h2 className="text-3xl font-bold text-white">Featured Projects</h2>
+        <p className="text-xs text-slate-400 mt-1">
+          Hover over cards to experience interactive 3D perspective
+        </p>
       </div>
 
       {loading ? (
@@ -47,55 +51,7 @@ const ProjectsGrid = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project) => (
-            <div
-              key={project._id}
-              className="flex flex-col justify-between p-6 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-slate-700 transition-all group"
-            >
-              <div>
-                <h3 className="text-xl font-bold text-white group-hover:text-primary-400 transition-colors">
-                  {project.title}
-                </h3>
-                <p className="text-slate-400 text-xs mt-2 line-clamp-3 leading-relaxed">
-                  {project.description}
-                </p>
-
-                <div className="flex flex-wrap gap-1.5 mt-4">
-                  {project.techStack.map((tech, idx) => (
-                    <span
-                      key={idx}
-                      className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px] font-mono border border-slate-700/50"
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4 mt-6 pt-4 border-t border-slate-800/60 text-xs">
-                {project.githubUrl && (
-                  <a
-                    href={project.githubUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1 text-slate-400 hover:text-white transition-colors"
-                  >
-                    <Code2 className="w-3.5 h-3.5" />
-                    <span>Code</span>
-                  </a>
-                )}
-                {project.liveUrl && (
-                  <a
-                    href={project.liveUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1 text-primary-400 hover:text-primary-300 transition-colors"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    <span>Live Demo</span>
-                  </a>
-                )}
-              </div>
-            </div>
+            <ProjectCard3D key={project._id} project={project} />
           ))}
         </div>
       )}

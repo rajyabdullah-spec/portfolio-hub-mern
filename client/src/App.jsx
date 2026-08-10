@@ -11,7 +11,6 @@ import ContactForm from './components/ContactForm';
 import LoginPage from './pages/LoginPage';
 import AdminDashboard from './pages/AdminDashboard';
 
-// Helper component to handle auto-scroll on location hash change
 const ScrollToHash = () => {
   const { hash } = useLocation();
 

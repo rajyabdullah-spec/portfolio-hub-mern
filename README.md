@@ -5,28 +5,32 @@ Portfolio Hub is a modern, production-ready Full-Stack MERN (MongoDB, Express.js
 ## Key Features
 
 ### Public Client Features
-- Hero Section & Bio: Highlighting professional skills and developer overview.
-- Dynamic Projects Showcase: Fetches live projects directly from MongoDB via RESTful API.
-- Interactive Contact Form: Sends user inquiries directly to the database with real-time feedback.
-- Smooth Hash Navigation: Seamless scrolling across sections with persistent routing fallback.
-- Modern UI & Responsive Design: Built using React, Tailwind CSS v4, and Lucide React icons.
+- **Hero Section & Bio:** Highlighting professional skills, full-stack overview, and interactive email clipboard button with instant feedback.
+- **3D Perspective Project Cards:** Interactive cards featuring cursor-following glow effects and dynamic 3D tilt responsiveness on hover.
+- **Interactive Skills Badges:** Hoverable tech stack badges displaying dynamic project count tooltips.
+- **Modal Contact Form:** Sleek, non-intrusive Call-To-Action banner that opens an animated contact modal with backdrop blur for direct message submission.
+- **Smooth Hash Navigation & Back-to-Top:** Seamless scrolling across sections with an integrated back-to-top button in the footer.
+- **Modern UI & Responsive Design:** Built using React 18, Framer Motion, Tailwind CSS v4, and Lucide React icons.
 
 ### Admin Portal & Security
-- JWT Authentication: Stateful user authentication backed by secure HTTP-Only Cookies.
-- Protected Routes Guard: Restricts /admin access strictly to authorized administrators.
-- Dynamic Content Management (CRUD):
-  * Add new projects with custom tech stacks, GitHub repos, and live demos.
-  * Delete existing projects.
-  * Read and manage client contact messages inbox.
-- Session Persistence: Auto-checks session validity across page reloads without re-login prompts.
+- **Cyber Vault Login Gate:** Interactive security shutter mechanism with passcode visibility toggle and custom authentication animations.
+- **JWT Authentication:** Stateful user authentication backed by secure HTTP-Only Cookies.
+- **Protected Routes Guard:** Restricts `/admin` access strictly to authorized administrators.
+- **Full Dynamic Content Management (CRUD):**
+  * **Create:** Add new projects with custom tech stacks, GitHub repos, and live demo links.
+  * **Read:** Fetch live projects dynamically from MongoDB.
+  * **Update:** Edit existing project details instantly via a pre-filled admin modal.
+  * **Delete:** Remove outdated projects with confirmation guards.
+  * **Inbox Management:** Read and manage client contact inquiries.
+- **Session Persistence & Logout:** Auto-checks session validity across reloads and supports safe session clearance.
 
 ## Tech Stack & Architecture
 
-- Frontend: React 18, Vite, React Router DOM v6, Axios, Tailwind CSS v4, Lucide Icons
-- Backend: Node.js, Express.js, RESTful API Architecture
-- Database: MongoDB & Mongoose ORM
-- Authentication: JSON Web Tokens (JWT), Bcrypt.js, HTTP-Only Cookies
-- Version Control: Git, GitHub (Feature Branching Workflow), Trello (Agile Kanban)
+- **Frontend:** React 18, Vite, React Router DOM v6, Framer Motion, Axios, Tailwind CSS v4, Lucide Icons
+- **Backend:** Node.js, Express.js, RESTful API Architecture
+- **Database:** MongoDB & Mongoose ORM
+- **Authentication:** JSON Web Tokens (JWT), Bcrypt.js, HTTP-Only Cookies
+- **Version Control:** Git, GitHub (Feature Branching Workflow), Trello (Agile Kanban)
 
 ## Repository Structure
 
@@ -42,7 +46,7 @@ portfolio-hub-mern/
 │
 ├── client/                   # Vite React Frontend
 │   ├── src/
-│   │   ├── components/       # Reusable UI Components
+│   │   ├── components/       # Reusable UI Components (ProjectCard3D, AboutAndSkills, ContactForm, Footer)
 │   │   ├── context/          # Auth Context Provider
 │   │   ├── pages/            # View Pages (LoginPage, AdminDashboard)
 │   │   └── App.jsx           # Main Router Setup
@@ -97,6 +101,7 @@ The application will be accessible at http://localhost:5173.
 - POST /api/auth/logout — Private — Clears authentication cookie
 - GET /api/projects — Public — Fetches all portfolio projects
 - POST /api/projects — Private (Admin) — Creates a new project entry
+- PUT /api/projects/:id — Private (Admin) — Updates an existing project by ID
 - DELETE /api/projects/:id — Private (Admin) — Deletes a project by ID
 - POST /api/messages — Public — Submits contact message to database
 - GET /api/messages — Private (Admin) — Retrieves all user contact inquiries

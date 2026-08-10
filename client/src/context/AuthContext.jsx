@@ -12,18 +12,21 @@ export const AuthProvider = ({ children }) => {
 
   // Check login status on reload
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const response = await axios.get('http://localhost:5000/api/auth/me');
+  const checkLoggedIn = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/auth/me');
+      if (response.data.success) {
         setUser(response.data.data);
-      } catch (err) {
-        setUser(null);
-      } finally {
-        setLoading(false);
       }
-    };
-    checkAuth();
-  }, []);
+    } catch (error) {
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  checkLoggedIn();
+}, []);
 
   const login = async (email, password) => {
     const response = await axios.post('http://localhost:5000/api/auth/login', {
