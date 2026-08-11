@@ -4,38 +4,34 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Plus, Trash2, Edit2, Loader2, X, FolderGit2, AlertCircle, 
   CheckCircle2, LogOut, Mail, Check, Inbox, Send, Search,
-  Sparkles, MessageSquare, Layers
+  Sparkles, MessageSquare, Layers, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
+const ITEMS_PER_PAGE = 8;
+
 const AdminDashboard = () => {
-  // Navigation Tabs: 'projects' | 'messages'
   const [activeTab, setActiveTab] = useState('projects');
 
-  // Projects State
   const [projects, setProjects] = useState([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  // Messages State
   const [messages, setMessages] = useState([]);
   const [loadingMessages, setLoadingMessages] = useState(true);
-  const [messageFilter, setMessageFilter] = useState('all'); // 'all' | 'unread'
+  const [messageFilter, setMessageFilter] = useState('all');
 
-  // Search Query State
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Delete Confirmation Modal State
   const [deleteTarget, setDeleteTarget] = useState(null);
 
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // Context & Navigation
   const { logout } = useAuth();
   const navigate = useNavigate();
 
-  // Modal States for Projects
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
 
@@ -46,13 +42,15 @@ const AdminDashboard = () => {
     imageUrl: '',
     githubUrl: '',
     liveUrl: '',
+    subPathUrl: '',
   });
 
-  // Fetch Projects
   const fetchProjects = async () => {
     try {
       const response = await axios.get('http://localhost:5000/api/projects');
-      setProjects(response.data.data || []);
+      const data = response.data.data || [];
+      const ordered = data.sort((a, b) => a._id.localeCompare(b._id));
+      setProjects(ordered);
     } catch (err) {
       setError('Failed to load projects');
     } finally {
@@ -60,7 +58,6 @@ const AdminDashboard = () => {
     }
   };
 
-  // Fetch Messages
   const fetchMessages = async () => {
     try {
       const response = await axios.get('http://localhost:5000/api/messages', { withCredentials: true });
@@ -77,7 +74,6 @@ const AdminDashboard = () => {
     fetchMessages();
   }, []);
 
-  // Handle Logout
   const handleLogout = async () => {
     try {
       await logout();
@@ -87,14 +83,12 @@ const AdminDashboard = () => {
     }
   };
 
-  // Open Modal for Create Project
   const handleOpenCreateModal = () => {
     setEditingProject(null);
-    setFormData({ title: '', description: '', techStack: '', imageUrl: '', githubUrl: '', liveUrl: '' });
+    setFormData({ title: '', description: '', techStack: '', imageUrl: '', githubUrl: '', liveUrl: '', subPathUrl: '' });
     setIsModalOpen(true);
   };
 
-  // Open Modal for Edit Project
   const handleOpenEditModal = (project) => {
     setEditingProject(project);
     setFormData({
@@ -104,11 +98,11 @@ const AdminDashboard = () => {
       imageUrl: project.imageUrl || '',
       githubUrl: project.githubUrl || '',
       liveUrl: project.liveUrl || '',
+      subPathUrl: project.subPathUrl || '',
     });
     setIsModalOpen(true);
   };
 
-  // Submit Create or Update Project
   const handleSubmitProject = async (e) => {
     e.preventDefault();
     setActionLoading(true);
@@ -140,7 +134,6 @@ const AdminDashboard = () => {
     }
   };
 
-  // Confirm Delete Action
   const handleConfirmDelete = async () => {
     if (!deleteTarget) return;
     setActionLoading(true);
@@ -164,7 +157,6 @@ const AdminDashboard = () => {
     }
   };
 
-  // Mark Message as Read
   const handleMarkAsRead = async (id) => {
     try {
       await axios.put(`http://localhost:5000/api/messages/${id}/read`, {}, { withCredentials: true });
@@ -174,7 +166,6 @@ const AdminDashboard = () => {
     }
   };
 
-  // Calculated Stats & Filters
   const unreadMessagesCount = messages.filter((m) => !m.isRead).length;
 
   const filteredProjects = projects.filter(
@@ -193,10 +184,13 @@ const AdminDashboard = () => {
     return matchesSearch;
   });
 
+  const totalProjectPages = Math.ceil(filteredProjects.length / ITEMS_PER_PAGE);
+  const startProjectIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const currentProjects = filteredProjects.slice(startProjectIndex, startProjectIndex + ITEMS_PER_PAGE);
+
   return (
     <div className="min-h-screen py-10 px-4 max-w-6xl mx-auto space-y-8">
       
-      {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
@@ -225,7 +219,6 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* Stats Overview Bar */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 border-t-2 border-t-emerald-500 flex items-center justify-between shadow-lg">
           <div>
@@ -258,12 +251,11 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* Navigation & Search Toolbar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => { setActiveTab('projects'); setSearchQuery(''); }}
+            onClick={() => { setActiveTab('projects'); setSearchQuery(''); setCurrentPage(1); }}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'projects'
                 ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20 border border-emerald-500'
@@ -322,7 +314,10 @@ const AdminDashboard = () => {
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                if (activeTab === 'projects') setCurrentPage(1);
+              }}
               placeholder={activeTab === 'projects' ? "Search projects or tech..." : "Search sender or email..."}
               className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-emerald-500 placeholder:text-slate-600"
             />
@@ -330,7 +325,6 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* Notifications */}
       {success && (
         <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4" />
@@ -345,68 +339,100 @@ const AdminDashboard = () => {
         </div>
       )}
 
-      {/* TAB 1: PROJECTS SECTION */}
       {activeTab === 'projects' && (
-        <>
+        <div className="space-y-6">
           {loadingProjects ? (
             <div className="flex justify-center py-12">
               <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
             </div>
-          ) : filteredProjects.length === 0 ? (
+          ) : currentProjects.length === 0 ? (
             <div className="text-center py-12 text-slate-500 text-sm border border-dashed border-slate-800 rounded-2xl">
               No matching projects found.
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProjects.map((project) => (
-                <div
-                  key={project._id}
-                  className="p-5 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between space-y-4 shadow-xl hover:border-slate-700 transition-colors"
-                >
-                  <div>
-                    {project.imageUrl && (
-                      <div className="mb-3 rounded-xl overflow-hidden h-36 bg-slate-950 border border-slate-800">
-                        <img src={project.imageUrl} alt={project.title} className="w-full h-full object-cover" />
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {currentProjects.map((project) => (
+                  <div
+                    key={project._id}
+                    className="p-5 bg-slate-900/90 border border-slate-800/80 rounded-2xl flex flex-col justify-between hover:border-slate-700 transition-all shadow-lg overflow-hidden"
+                  >
+                    <div>
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <h3 className="text-sm font-bold text-white line-clamp-1">{project.title}</h3>
+                        
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <button
+                            onClick={() => handleOpenEditModal(project)}
+                            className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition-colors cursor-pointer"
+                            title="Edit Project"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => setDeleteTarget({ type: 'project', id: project._id, name: project.title })}
+                            disabled={actionLoading}
+                            className="p-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-lg transition-colors border border-rose-500/20 cursor-pointer disabled:opacity-50"
+                            title="Delete Project"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
-                    )}
-                    <h3 className="font-bold text-white text-base mb-1">{project.title}</h3>
-                    <p className="text-slate-400 text-xs line-clamp-2 mb-3">{project.description}</p>
-                    
-                    <div className="flex flex-wrap gap-1">
-                      {(project.techStack || []).map((tech, idx) => (
-                        <span key={idx} className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300">
-                          {tech}
-                        </span>
-                      ))}
+
+                      <p className="text-xs text-slate-400 line-clamp-2 mb-4 leading-relaxed">
+                        {project.description}
+                      </p>
+
+                      <div className="flex flex-wrap gap-1">
+                        {(project.techStack || []).slice(0, 5).map((tech, i) => (
+                          <span
+                            key={i}
+                            className="text-[10px] font-mono px-2 py-0.5 bg-slate-800 text-slate-300 rounded-md border border-slate-700/50"
+                          >
+                            {tech}
+                          </span>
+                        ))}
+                        {(project.techStack && project.techStack.length > 5) && (
+                          <span className="text-[10px] font-mono px-2 py-0.5 bg-slate-800/50 text-slate-500 rounded-md border border-slate-700/30">
+                            +{project.techStack.length - 5}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
+                ))}
+              </div>
 
-                  <div className="flex items-center gap-2 pt-3 border-t border-slate-800/80">
+              {totalProjectPages > 1 && (
+                <div className="flex items-center justify-between pt-4 border-t border-slate-800 text-xs text-slate-400">
+                  <span>
+                    Showing Page <strong className="text-white">{currentPage}</strong> of <strong className="text-white">{totalProjectPages}</strong>
+                  </span>
+
+                  <div className="flex items-center gap-2">
                     <button
-                      onClick={() => handleOpenEditModal(project)}
-                      className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/50 hover:border-slate-600 text-slate-200 text-xs font-semibold transition-all duration-200 cursor-pointer"
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                      className="p-2 bg-slate-900 border border-slate-800 rounded-xl disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-800 hover:text-white transition-colors cursor-pointer"
                     >
-                      <Edit2 className="w-3.5 h-3.5 text-amber-400" />
-                      <span>Edit</span>
+                      <ChevronLeft className="w-4 h-4" />
                     </button>
-
                     <button
-                      onClick={() => setDeleteTarget({ type: 'project', id: project._id, name: project.title })}
-                      disabled={actionLoading}
-                      className="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition-all duration-200 cursor-pointer disabled:opacity-50 hover:scale-105 active:scale-100"
-                      title="Delete Project"
+                      disabled={currentPage === totalProjectPages}
+                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalProjectPages))}
+                      className="p-2 bg-slate-900 border border-slate-800 rounded-xl disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-800 hover:text-white transition-colors cursor-pointer"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <ChevronRight className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
-              ))}
-            </div>
+              )}
+            </>
           )}
-        </>
+        </div>
       )}
 
-      {/* TAB 2: MESSAGES INBOX SECTION */}
       {activeTab === 'messages' && (
         <>
           {loadingMessages ? (
@@ -492,10 +518,9 @@ const AdminDashboard = () => {
         </>
       )}
 
-      {/* Modal Dialog for Create & Edit Project */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-          <div className="relative w-full max-w-lg bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+          <div className="relative w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-4 border-b border-slate-800">
               <h3 className="text-lg font-bold text-white">
                 {editingProject ? 'Edit Project Details' : 'Create New Project'}
@@ -547,35 +572,44 @@ const AdminDashboard = () => {
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Project Image URL (Optional)</label>
-                <input
-                  type="url"
-                  value={formData.imageUrl}
-                  onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                  placeholder="https://example.com/image.jpg"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-emerald-500 transition-colors"
-                />
-              </div>
-
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">GitHub URL</label>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Image/GIF URL</label>
                   <input
                     type="url"
-                    value={formData.githubUrl}
-                    onChange={(e) => setFormData({ ...formData, githubUrl: e.target.value })}
-                    placeholder="https://github.com/..."
+                    value={formData.imageUrl}
+                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                    placeholder="https://example.com/image.gif"
                     className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-emerald-500 transition-colors"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Live Demo URL</label>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Live Demo / Render URL</label>
                   <input
                     type="url"
                     value={formData.liveUrl}
                     onChange={(e) => setFormData({ ...formData, liveUrl: e.target.value })}
                     placeholder="https://demo.com"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Project Files URL (subPathUrl)</label>
+                  <input
+                    type="url"
+                    value={formData.subPathUrl}
+                    onChange={(e) => setFormData({ ...formData, subPathUrl: e.target.value })}
+                    placeholder="https://github.com/..."
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">GitHub Root URL (README)</label>
+                  <input
+                    type="url"
+                    value={formData.githubUrl}
+                    onChange={(e) => setFormData({ ...formData, githubUrl: e.target.value })}
+                    placeholder="https://github.com/..."
                     className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-emerald-500 transition-colors"
                   />
                 </div>
@@ -602,7 +636,6 @@ const AdminDashboard = () => {
         </div>
       )}
 
-      {/* Custom Delete Confirmation Modal */}
       {deleteTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
           <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-5">

@@ -27,6 +27,10 @@ const projectSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    subPathUrl: {
+      type: String,
+      default: '',
+    },
     featured: {
       type: Boolean,
       default: false,

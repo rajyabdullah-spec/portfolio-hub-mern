@@ -1,21 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { motion } from 'framer-motion';
 import { User, Code2, Copy, Check } from 'lucide-react';
 
-const SKILLS = [
-  { name: 'React', count: 6, color: '#61DAFB', bg: 'hover:bg-[#61DAFB]/10 hover:border-[#61DAFB]' },
-  { name: 'Node.js', count: 5, color: '#339933', bg: 'hover:bg-[#339933]/10 hover:border-[#339933]' },
-  { name: 'Express.js', count: 5, color: '#FFFFFF', bg: 'hover:bg-white/10 hover:border-white' },
-  { name: 'MongoDB', count: 4, color: '#47A248', bg: 'hover:bg-[#47A248]/10 hover:border-[#47A248]' },
-  { name: 'JavaScript', count: 8, color: '#F7DF1E', bg: 'hover:bg-[#F7DF1E]/10 hover:border-[#F7DF1E]' },
-  { name: 'Tailwind CSS', count: 7, color: '#06B6D4', bg: 'hover:bg-[#06B6D4]/10 hover:border-[#06B6D4]' },
-  { name: 'Git & GitHub', count: 9, color: '#F05032', bg: 'hover:bg-[#F05032]/10 hover:border-[#F05032]' },
-  { name: 'REST API', count: 6, color: '#A855F7', bg: 'hover:bg-purple-500/10 hover:border-purple-500' },
+const SKILLS_TEMPLATE = [
+  { name: 'React', keywords: ['React'], count: 0, color: '#61DAFB', bg: 'hover:bg-[#61DAFB]/10 hover:border-[#61DAFB]' },
+  { name: 'Node.js', keywords: ['Node.js'], count: 0, color: '#339933', bg: 'hover:bg-[#339933]/10 hover:border-[#339933]' },
+  { name: 'Express.js', keywords: ['Express.js', 'Express', 'MVC'], count: 0, color: '#FFFFFF', bg: 'hover:bg-white/10 hover:border-white' },
+  { name: 'MongoDB', keywords: ['MongoDB', 'Mongoose', 'Database'], count: 0, color: '#47A248', bg: 'hover:bg-[#47A248]/10 hover:border-[#47A248]' },
+  { name: 'JavaScript', keywords: ['JavaScript', 'JS', 'ES6', 'DOM'], count: 0, color: '#F7DF1E', bg: 'hover:bg-[#F7DF1E]/10 hover:border-[#F7DF1E]' },
+  { name: 'Algorithms', keywords: ['Algorithms', 'Loops', 'Logic'], count: 0, color: '#E34F26', bg: 'hover:bg-[#E34F26]/10 hover:border-[#E34F26]' },
+  { name: 'OOP & Async', keywords: ['OOP', 'Promises', 'Async', 'Fetch'], count: 0, color: '#F48024', bg: 'hover:bg-[#F48024]/10 hover:border-[#F48024]' },
+  { name: 'Git & GitHub', keywords: ['Git', 'GitHub', 'Version Control'], count: 0, color: '#F05032', bg: 'hover:bg-[#F05032]/10 hover:border-[#F05032]' },
+  { name: 'REST APIs', keywords: ['REST API', 'API', 'AJAX', 'Postman'], count: 0, color: '#A855F7', bg: 'hover:bg-purple-500/10 hover:border-purple-500' },
+  { name: 'HTML & CSS', keywords: ['HTML5', 'CSS3', 'Bootstrap', 'Tailwind'], count: 0, color: '#1572B6', bg: 'hover:bg-[#1572B6]/10 hover:border-[#1572B6]' }
 ];
 
 const AboutAndSkills = () => {
   const [copied, setCopied] = useState(false);
+  const [skills, setSkills] = useState(SKILLS_TEMPLATE);
+  
   const myEmail = "Rajyabdullah@gmail.com";
+
+  useEffect(() => {
+    const fetchAndCalculateSkills = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/projects');
+        const allProjects = response.data.data || [];
+        
+        // Dynamically count projects based on keywords matching the techStack
+        const updatedSkills = SKILLS_TEMPLATE.map(skill => {
+          const matchCount = allProjects.filter(project => 
+            project.techStack.some(tech => 
+              skill.keywords.some(keyword => tech.toLowerCase().includes(keyword.toLowerCase()))
+            )
+          ).length;
+          
+          return { ...skill, count: matchCount };
+        });
+        
+        setSkills(updatedSkills);
+      } catch (error) {
+        console.error("Failed to load project counts for skills mapping", error);
+      }
+    };
+    
+    fetchAndCalculateSkills();
+  }, []);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(myEmail);
@@ -63,7 +94,7 @@ const AboutAndSkills = () => {
         </div>
       </div>
 
-      {/* Skills Section */}
+      {/* Dynamic Skills Section */}
       <div id="skills" className="space-y-6 pt-6">
         <div className="text-center space-y-1">
           <div className="inline-flex items-center gap-2 text-primary-400 font-semibold text-sm">
@@ -71,11 +102,11 @@ const AboutAndSkills = () => {
             <span>SKILLS & STACK</span>
           </div>
           <h3 className="text-2xl font-bold text-white">Technologies I Work With</h3>
-          <p className="text-xs text-slate-400">Hover over any technology to reveal project count</p>
+          <p className="text-xs text-slate-400">Hover over any technology to reveal database-synced project counts</p>
         </div>
 
         <div className="flex flex-wrap justify-center gap-3 max-w-3xl mx-auto pt-2">
-          {SKILLS.map((skill, idx) => (
+          {skills.map((skill, idx) => (
             <div key={idx} className="relative group">
               {/* Tooltip Bubble */}
               <div className="absolute -top-9 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 group-hover:-top-10 transition-all duration-300 pointer-events-none z-20">
@@ -97,7 +128,6 @@ const AboutAndSkills = () => {
           ))}
         </div>
       </div>
-
     </section>
   );
 };
