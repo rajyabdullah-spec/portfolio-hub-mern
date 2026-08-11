@@ -26,11 +26,11 @@ const ContactForm = () => {
       setStatus({ loading: false, success: true, error: '' });
       setFormData({ senderName: '', email: '', subject: '', message: '' });
 
-      // Automatically close the modal shortly after success
+      // Fast auto-close after 1 second
       setTimeout(() => {
         setIsOpen(false);
         setStatus((prev) => ({ ...prev, success: false }));
-      }, 2500);
+      }, 1000);
     } catch (err) {
       setStatus({
         loading: false,
@@ -44,10 +44,10 @@ const ContactForm = () => {
     <section id="contact" className="py-12 border-t border-slate-800/60">
       <div className="max-w-4xl mx-auto px-4">
         
-        {/* Compact & Clean Call to Action Banner */}
+        {/* Call to Action Banner */}
         <div className="p-8 sm:p-10 rounded-3xl bg-slate-900/60 border border-slate-800/80 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl relative overflow-hidden">
           <div className="space-y-2 text-center md:text-left">
-            <div className="inline-flex items-center gap-2 text-primary-400 font-semibold text-xs tracking-wider uppercase">
+            <div className="inline-flex items-center gap-2 text-emerald-400 font-semibold text-xs tracking-wider uppercase">
               <MessageSquare className="w-4 h-4" />
               <span>Get In Touch</span>
             </div>
@@ -59,9 +59,9 @@ const ContactForm = () => {
 
           <button
             onClick={() => setIsOpen(true)}
-            className="shrink-0 inline-flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-primary-600 hover:bg-primary-500 active:scale-95 text-white font-bold text-sm transition-all shadow-xl shadow-primary-600/25 cursor-pointer"
+            className="shrink-0 inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-xs tracking-wide transition-all duration-300 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer border border-emerald-400/30"
           >
-            <Mail className="w-4 h-4" />
+            <Mail className="w-4 h-4 stroke-[2.5]" />
             <span>Open Contact Form</span>
           </button>
         </div>
@@ -73,7 +73,7 @@ const ContactForm = () => {
         {isOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             
-            {/* Dark Blurred Backdrop */}
+            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -87,13 +87,13 @@ const ContactForm = () => {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+              transition={{ type: 'spring', stiffness: 350, damping: 25 }}
               className="relative w-full max-w-lg bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl z-10 overflow-hidden"
             >
               {/* Close Button */}
               <button
                 onClick={() => setIsOpen(false)}
-                className="absolute top-5 right-5 p-2 rounded-xl bg-slate-800/60 text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                className="absolute top-5 right-5 p-2 rounded-xl bg-slate-800/60 text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer border border-slate-700/40"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -104,10 +104,14 @@ const ContactForm = () => {
               </div>
 
               {status.success && (
-                <div className="mb-4 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs flex items-center gap-2">
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-4 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs flex items-center gap-2"
+                >
                   <CheckCircle2 className="w-5 h-5 shrink-0" />
                   <span>Thank you! Your message has been sent successfully.</span>
-                </div>
+                </motion.div>
               )}
 
               {status.error && (
@@ -127,7 +131,7 @@ const ContactForm = () => {
                       required
                       value={formData.senderName}
                       onChange={handleChange}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500/50 transition-all placeholder-slate-600"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-emerald-500 transition-all placeholder-slate-600"
                       placeholder="Raji"
                     />
                   </div>
@@ -139,7 +143,7 @@ const ContactForm = () => {
                       required
                       value={formData.email}
                       onChange={handleChange}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500/50 transition-all placeholder-slate-600"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-emerald-500 transition-all placeholder-slate-600"
                       placeholder="raji@example.com"
                     />
                   </div>
@@ -152,7 +156,7 @@ const ContactForm = () => {
                     name="subject"
                     value={formData.subject}
                     onChange={handleChange}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500/50 transition-all placeholder-slate-600"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-emerald-500 transition-all placeholder-slate-600"
                     placeholder="Project Inquiry"
                   />
                 </div>
@@ -165,7 +169,7 @@ const ContactForm = () => {
                     rows="4"
                     value={formData.message}
                     onChange={handleChange}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500/50 transition-all placeholder-slate-600 resize-none"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-emerald-500 transition-all placeholder-slate-600 resize-none"
                     placeholder="Write your message here..."
                   ></textarea>
                 </div>
@@ -173,14 +177,14 @@ const ContactForm = () => {
                 <button
                   type="submit"
                   disabled={status.loading}
-                  className="w-full inline-flex justify-center items-center gap-2 py-3 px-4 rounded-xl bg-primary-600 hover:bg-primary-500 active:scale-[0.99] text-white font-bold text-sm transition-all shadow-lg shadow-primary-600/20 disabled:opacity-50 cursor-pointer"
+                  className="w-full inline-flex justify-center items-center gap-2 py-3.5 px-5 rounded-xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-xs tracking-wide transition-all duration-300 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 border border-emerald-400/30 cursor-pointer"
                 >
                   {status.loading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
                     <>
                       <span>Send Message</span>
-                      <Send className="w-4 h-4" />
+                      <Send className="w-4 h-4 stroke-[2.5]" />
                     </>
                   )}
                 </button>
