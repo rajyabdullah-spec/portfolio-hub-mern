@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ExternalLink, Code2, FolderGit2, PlayCircle } from 'lucide-react';
+import { ExternalLink, Code2, FolderGit2, PlayCircle, Share2, Check } from 'lucide-react';
 
 const ProjectCard3D = ({ project }) => {
   const [rotateX, setRotateX] = useState(0);
   const [rotateY, setRotateY] = useState(0);
   const [glowPos, setGlowPos] = useState({ x: 50, y: 50 });
+  const [copied, setCopied] = useState(false);
 
   // Determine showcase buttons
   const hasLiveApp = Boolean(project.liveUrl) && project.liveUrl.includes('http');
@@ -15,7 +16,7 @@ const ProjectCard3D = ({ project }) => {
   const directFolderUrl = project.subPathUrl || project.githubUrl || '';
   
   const getMainRepoUrl = (url) => {
-    if (!url) return 'https://github.com/rajyabdullah-spec';
+    if (!url) return 'https://github.com/rajyabdullah-spec/portfolio-hub-mern';
     const match = url.match(/https:\/\/github\.com\/[^\/]+\/[^\/]+/);
     return match ? match[0] : url;
   };
@@ -46,6 +47,29 @@ const ProjectCard3D = ({ project }) => {
     setRotateY(0);
   };
 
+  // Share Direct Link Handler
+  const handleShare = async (e) => {
+    e.stopPropagation();
+    const targetUrl = directFolderUrl || window.location.href;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: project.title,
+          text: project.description,
+          url: targetUrl,
+        });
+        return;
+      } catch (err) {
+        // Fallback to clipboard if share was cancelled or unsupported
+      }
+    }
+
+    navigator.clipboard.writeText(targetUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <motion.div
       style={{ perspective: 1000 }}
@@ -63,7 +87,7 @@ const ProjectCard3D = ({ project }) => {
       />
 
       <div>
-        {/* Type Badge & Status Header */}
+        {/* Header Bar with Badge & Share Button */}
         <div className="flex items-center justify-between gap-2 mb-3">
           <span className={`text-[10px] font-mono px-2.5 py-0.5 rounded-full border ${
             hasLiveApp
@@ -74,6 +98,15 @@ const ProjectCard3D = ({ project }) => {
           }`}>
             {hasLiveApp ? '● Live Application' : hasGifDemo ? '🎬 Interactive Demo' : '💻 Code Module'}
           </span>
+
+          {/* Share Action */}
+          <button
+            onClick={handleShare}
+            className="p-1.5 rounded-lg bg-slate-800/60 hover:bg-slate-700 text-slate-400 hover:text-emerald-400 border border-slate-700/50 transition-all cursor-pointer z-10"
+            title="Share Project Link"
+          >
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Share2 className="w-3.5 h-3.5" />}
+          </button>
         </div>
 
         {/* Title & Description */}
@@ -98,7 +131,7 @@ const ProjectCard3D = ({ project }) => {
       </div>
 
       {/* Action Links Bar */}
-      <div className="flex items-center justify-between gap-2 pt-4 border-t border-slate-800/80 text-xs">
+      <div className="flex items-center justify-between gap-2 pt-4 border-t border-slate-800/80 text-xs z-10">
         
         {/* Primary Action Button */}
         {hasLiveApp ? (
@@ -135,7 +168,6 @@ const ProjectCard3D = ({ project }) => {
 
         {/* Secondary GitHub Actions */}
         <div className="flex items-center gap-1.5">
-          {/* 1. Direct Project Code Folder Link */}
           {directFolderUrl && (
             <a
               href={directFolderUrl}
@@ -148,13 +180,12 @@ const ProjectCard3D = ({ project }) => {
             </a>
           )}
 
-          {/* 2. Main Repository Root Link (README.md) */}
           <a
             href={mainRepoUrl}
             target="_blank"
             rel="noreferrer"
             className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 transition-all"
-            title="Open Repository Root (README.md)"
+            title="Open Repository Root"
           >
             <FolderGit2 className="w-4 h-4" />
           </a>

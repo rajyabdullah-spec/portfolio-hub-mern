@@ -1,14 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { 
   Plus, Trash2, Edit2, Loader2, X, FolderGit2, AlertCircle, 
   CheckCircle2, LogOut, Mail, Check, Inbox, Send, Search,
-  Sparkles, MessageSquare, Layers, ChevronLeft, ChevronRight
+  Sparkles, MessageSquare, Layers, ChevronLeft, ChevronRight,
+  Eye
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import API from '../api/axios'; // ✅ Centralized Axios Client
 
 const ITEMS_PER_PAGE = 8;
+
+const formatDate = (dateString) => {
+  if (!dateString) return 'Just now';
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return 'Recently';
+
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  }).format(date);
+};
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('projects');
@@ -20,9 +36,9 @@ const AdminDashboard = () => {
   const [messages, setMessages] = useState([]);
   const [loadingMessages, setLoadingMessages] = useState(true);
   const [messageFilter, setMessageFilter] = useState('all');
+  const [selectedMessage, setSelectedMessage] = useState(null); // Full message details modal
 
   const [searchQuery, setSearchQuery] = useState('');
-
   const [deleteTarget, setDeleteTarget] = useState(null);
 
   const [actionLoading, setActionLoading] = useState(false);
@@ -35,19 +51,23 @@ const AdminDashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
 
+  // Form State
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    techStack: '',
     imageUrl: '',
     githubUrl: '',
     liveUrl: '',
     subPathUrl: '',
   });
+  
+  // Interactive Tech Stack Chips State
+  const [techStackList, setTechStackList] = useState([]);
+  const [techInput, setTechInput] = useState('');
 
   const fetchProjects = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/projects');
+      const response = await API.get('/projects');
       const data = response.data.data || [];
       const ordered = data.sort((a, b) => a._id.localeCompare(b._id));
       setProjects(ordered);
@@ -60,7 +80,7 @@ const AdminDashboard = () => {
 
   const fetchMessages = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/messages', { withCredentials: true });
+      const response = await API.get('/messages');
       setMessages(response.data.data || []);
     } catch (err) {
       setError('Failed to load messages');
@@ -83,9 +103,25 @@ const AdminDashboard = () => {
     }
   };
 
+  // Tech Stack Chip Helpers
+  const handleAddTechChip = (e) => {
+    if (e) e.preventDefault();
+    const trimmed = techInput.trim();
+    if (trimmed && !techStackList.includes(trimmed)) {
+      setTechStackList([...techStackList, trimmed]);
+      setTechInput('');
+    }
+  };
+
+  const handleRemoveTechChip = (indexToRemove) => {
+    setTechStackList(techStackList.filter((_, idx) => idx !== indexToRemove));
+  };
+
   const handleOpenCreateModal = () => {
     setEditingProject(null);
-    setFormData({ title: '', description: '', techStack: '', imageUrl: '', githubUrl: '', liveUrl: '', subPathUrl: '' });
+    setFormData({ title: '', description: '', imageUrl: '', githubUrl: '', liveUrl: '', subPathUrl: '' });
+    setTechStackList([]);
+    setTechInput('');
     setIsModalOpen(true);
   };
 
@@ -94,12 +130,13 @@ const AdminDashboard = () => {
     setFormData({
       title: project.title || '',
       description: project.description || '',
-      techStack: Array.isArray(project.techStack) ? project.techStack.join(', ') : project.techStack || '',
       imageUrl: project.imageUrl || '',
       githubUrl: project.githubUrl || '',
       liveUrl: project.liveUrl || '',
       subPathUrl: project.subPathUrl || '',
     });
+    setTechStackList(Array.isArray(project.techStack) ? [...project.techStack] : []);
+    setTechInput('');
     setIsModalOpen(true);
   };
 
@@ -108,19 +145,22 @@ const AdminDashboard = () => {
     setActionLoading(true);
     setError('');
 
+    let currentStack = [...techStackList];
+    if (techInput.trim() && !currentStack.includes(techInput.trim())) {
+      currentStack.push(techInput.trim());
+    }
+
     const formattedData = {
       ...formData,
-      techStack: typeof formData.techStack === 'string'
-        ? formData.techStack.split(',').map((item) => item.trim()).filter(Boolean)
-        : formData.techStack,
+      techStack: Array.from(new Set(currentStack)),
     };
 
     try {
       if (editingProject) {
-        await axios.put(`http://localhost:5000/api/projects/${editingProject._id}`, formattedData, { withCredentials: true });
+        await API.put(`/projects/${editingProject._id}`, formattedData);
         setSuccess('Project updated successfully!');
       } else {
-        await axios.post('http://localhost:5000/api/projects', formattedData, { withCredentials: true });
+        await API.post('/projects', formattedData);
         setSuccess('Project created successfully!');
       }
 
@@ -140,12 +180,15 @@ const AdminDashboard = () => {
 
     try {
       if (deleteTarget.type === 'project') {
-        await axios.delete(`http://localhost:5000/api/projects/${deleteTarget.id}`, { withCredentials: true });
+        await API.delete(`/projects/${deleteTarget.id}`);
         setSuccess('Project deleted successfully');
         fetchProjects();
       } else if (deleteTarget.type === 'message') {
-        await axios.delete(`http://localhost:5000/api/messages/${deleteTarget.id}`, { withCredentials: true });
+        await API.delete(`/messages/${deleteTarget.id}`);
         setSuccess('Message deleted successfully');
+        if (selectedMessage?._id === deleteTarget.id) {
+          setSelectedMessage(null);
+        }
         fetchMessages();
       }
     } catch (err) {
@@ -159,7 +202,10 @@ const AdminDashboard = () => {
 
   const handleMarkAsRead = async (id) => {
     try {
-      await axios.put(`http://localhost:5000/api/messages/${id}/read`, {}, { withCredentials: true });
+      await API.put(`/messages/${id}/read`, {});
+      if (selectedMessage && selectedMessage._id === id) {
+        setSelectedMessage(prev => prev ? { ...prev, isRead: true } : null);
+      }
       fetchMessages();
     } catch (err) {
       setError('Failed to mark message as read');
@@ -170,15 +216,16 @@ const AdminDashboard = () => {
 
   const filteredProjects = projects.filter(
     (p) =>
-      p.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.techStack?.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase()))
+      p.title?.toLowerCase().includes(searchQuery.trim().toLowerCase()) ||
+      p.techStack?.some((t) => t.toLowerCase().includes(searchQuery.trim().toLowerCase()))
   );
 
   const filteredMessages = messages.filter((m) => {
+    const q = searchQuery.trim().toLowerCase();
     const matchesSearch =
-      m.senderName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      m.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      m.subject?.toLowerCase().includes(searchQuery.toLowerCase());
+      m.senderName?.toLowerCase().includes(q) ||
+      m.email?.toLowerCase().includes(q) ||
+      m.subject?.toLowerCase().includes(q);
 
     if (messageFilter === 'unread') return matchesSearch && !m.isRead;
     return matchesSearch;
@@ -191,6 +238,7 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen py-10 px-4 max-w-6xl mx-auto space-y-8">
       
+      {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
@@ -211,7 +259,7 @@ const AdminDashboard = () => {
 
           <button
             onClick={handleLogout}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-rose-500/10 border border-slate-800 hover:border-rose-500/30 text-slate-400 hover:text-rose-400 font-bold text-xs transition-all duration-200 cursor-pointer"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900/80 hover:bg-rose-500/10 border border-slate-800 hover:border-rose-500/30 text-slate-400 hover:text-rose-400 font-bold text-xs transition-all duration-200 cursor-pointer shadow-sm"
           >
             <LogOut className="w-4 h-4" />
             <span>Logout</span>
@@ -219,6 +267,7 @@ const AdminDashboard = () => {
         </div>
       </div>
 
+      {/* Analytics Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 border-t-2 border-t-emerald-500 flex items-center justify-between shadow-lg">
           <div>
@@ -240,7 +289,7 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 border-t-2 border-t-rose-500 flex items-center justify-between shadow-lg">
+        <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 border-t-2 border-t-rose-500/80 flex items-center justify-between shadow-lg">
           <div>
             <span className="text-[11px] font-medium text-slate-400 block mb-1">Unread Messages</span>
             <span className="text-2xl font-bold text-rose-400">{unreadMessagesCount}</span>
@@ -251,6 +300,7 @@ const AdminDashboard = () => {
         </div>
       </div>
 
+      {/* Navigation Tabs and Controls */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
         <div className="flex items-center gap-2">
           <button
@@ -278,8 +328,10 @@ const AdminDashboard = () => {
             <Mail className="w-4 h-4" />
             <span>Inbox</span>
             {unreadMessagesCount > 0 && (
-              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-                activeTab === 'messages' ? 'bg-slate-950 text-white' : 'bg-rose-500 text-white'
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold transition-colors ${
+                activeTab === 'messages' 
+                  ? 'bg-slate-950 text-emerald-400 border border-emerald-500/30' 
+                  : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
               }`}>
                 {unreadMessagesCount}
               </span>
@@ -325,20 +377,32 @@ const AdminDashboard = () => {
         </div>
       </div>
 
+      {/* Notifications */}
       {success && (
-        <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4" />
-          <span>{success}</span>
+        <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs flex items-center justify-between shadow-md">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4" />
+            <span>{success}</span>
+          </div>
+          <button onClick={() => setSuccess('')} className="p-1 text-emerald-400 hover:text-white cursor-pointer">
+            <X className="w-3.5 h-3.5" />
+          </button>
         </div>
       )}
 
       {error && (
-        <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs flex items-center gap-2">
-          <AlertCircle className="w-4 h-4" />
-          <span>{error}</span>
+        <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs flex items-center justify-between shadow-md">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4" />
+            <span>{error}</span>
+          </div>
+          <button onClick={() => setError('')} className="p-1 text-rose-400 hover:text-white cursor-pointer">
+            <X className="w-3.5 h-3.5" />
+          </button>
         </div>
       )}
 
+      {/* Projects List Tab */}
       {activeTab === 'projects' && (
         <div className="space-y-6">
           {loadingProjects ? (
@@ -355,7 +419,7 @@ const AdminDashboard = () => {
                 {currentProjects.map((project) => (
                   <div
                     key={project._id}
-                    className="p-5 bg-slate-900/90 border border-slate-800/80 rounded-2xl flex flex-col justify-between hover:border-slate-700 transition-all shadow-lg overflow-hidden"
+                    className="p-5 bg-slate-900/90 border border-slate-800/80 rounded-2xl flex flex-col justify-between hover:border-emerald-500/30 transition-all shadow-lg overflow-hidden"
                   >
                     <div>
                       <div className="flex items-start justify-between gap-2 mb-2">
@@ -364,7 +428,7 @@ const AdminDashboard = () => {
                         <div className="flex items-center gap-1.5 shrink-0">
                           <button
                             onClick={() => handleOpenEditModal(project)}
-                            className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition-colors cursor-pointer"
+                            className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-emerald-400 rounded-lg transition-colors cursor-pointer border border-slate-700/50"
                             title="Edit Project"
                           >
                             <Edit2 className="w-3.5 h-3.5" />
@@ -388,7 +452,7 @@ const AdminDashboard = () => {
                         {(project.techStack || []).slice(0, 5).map((tech, i) => (
                           <span
                             key={i}
-                            className="text-[10px] font-mono px-2 py-0.5 bg-slate-800 text-slate-300 rounded-md border border-slate-700/50"
+                            className="text-[10px] font-mono px-2 py-0.5 bg-slate-800/90 text-slate-300 rounded-md border border-slate-700/50"
                           >
                             {tech}
                           </span>
@@ -414,14 +478,14 @@ const AdminDashboard = () => {
                     <button
                       disabled={currentPage === 1}
                       onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                      className="p-2 bg-slate-900 border border-slate-800 rounded-xl disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-800 hover:text-white transition-colors cursor-pointer"
+                      className="p-2 bg-slate-900 border border-slate-800 rounded-xl disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-800 hover:text-emerald-400 hover:border-emerald-500/40 transition-colors cursor-pointer"
                     >
                       <ChevronLeft className="w-4 h-4" />
                     </button>
                     <button
                       disabled={currentPage === totalProjectPages}
                       onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalProjectPages))}
-                      className="p-2 bg-slate-900 border border-slate-800 rounded-xl disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-800 hover:text-white transition-colors cursor-pointer"
+                      className="p-2 bg-slate-900 border border-slate-800 rounded-xl disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-800 hover:text-emerald-400 hover:border-emerald-500/40 transition-colors cursor-pointer"
                     >
                       <ChevronRight className="w-4 h-4" />
                     </button>
@@ -433,6 +497,7 @@ const AdminDashboard = () => {
         </div>
       )}
 
+      {/* Messages Inbox Tab */}
       {activeTab === 'messages' && (
         <>
           {loadingMessages ? (
@@ -445,18 +510,22 @@ const AdminDashboard = () => {
               <span>No matching messages found in your inbox.</span>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {filteredMessages.map((msg) => (
                 <div
                   key={msg._id}
-                  className={`p-5 rounded-2xl border transition-all ${
+                  onClick={() => {
+                    setSelectedMessage(msg);
+                    if (!msg.isRead) handleMarkAsRead(msg._id);
+                  }}
+                  className={`p-5 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between hover:border-emerald-500/40 ${
                     msg.isRead 
                       ? 'bg-slate-900/60 border-slate-800/80 opacity-80' 
                       : 'bg-gradient-to-r from-emerald-950/20 via-slate-900 to-slate-900 border-emerald-500/40 shadow-xl shadow-emerald-500/5'
                   }`}
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3 pb-3 border-b border-slate-800/60">
-                    <div>
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-2">
                       <div className="flex items-center gap-2">
                         <h4 className="font-bold text-white text-sm">{msg.senderName}</h4>
                         {!msg.isRead && (
@@ -465,51 +534,38 @@ const AdminDashboard = () => {
                           </span>
                         )}
                       </div>
-                      <span className="text-xs text-slate-400 font-mono">{msg.email}</span>
+                      <span className="text-[10px] text-slate-500 font-mono">
+                        {formatDate(msg.createdAt)}
+                      </span>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <a
-                        href={`mailto:${msg.email}?subject=Re: ${encodeURIComponent(msg.subject || 'Portfolio Inquiry')}`}
-                        className="px-3 py-1.5 rounded-xl bg-emerald-600/15 hover:bg-emerald-600/25 border border-emerald-500/30 text-emerald-300 text-xs font-semibold flex items-center gap-1.5 transition-all duration-200 cursor-pointer"
-                      >
-                        <Send className="w-3.5 h-3.5" />
-                        <span>Reply</span>
-                      </a>
+                    <p className="text-xs text-slate-400 font-mono mb-2">{msg.email}</p>
 
-                      {!msg.isRead && (
-                        <button
-                          onClick={() => handleMarkAsRead(msg._id)}
-                          className="px-3 py-1.5 rounded-xl bg-teal-500/15 hover:bg-teal-500/25 border border-teal-500/30 text-teal-300 text-xs font-semibold flex items-center gap-1.5 transition-all duration-200 cursor-pointer"
-                        >
-                          <Check className="w-3.5 h-3.5" />
-                          <span>Mark Read</span>
-                        </button>
-                      )}
-
-                      <button
-                        onClick={() => setDeleteTarget({ type: 'message', id: msg._id, name: `message from ${msg.senderName}` })}
-                        disabled={actionLoading}
-                        className="p-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition-all duration-200 cursor-pointer disabled:opacity-50"
-                        title="Delete Message"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
                     {msg.subject && (
-                      <p className="text-xs font-semibold text-slate-200">
-                        Subject: <span className="text-slate-400 font-normal">{msg.subject}</span>
+                      <p className="text-xs font-semibold text-slate-200 line-clamp-1 mb-1">
+                        {msg.subject}
                       </p>
                     )}
-                    <p className="text-xs text-slate-300 whitespace-pre-line leading-relaxed bg-slate-950/50 p-3 rounded-xl border border-slate-800/40 mt-2">
+
+                    <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
                       {msg.message}
                     </p>
-                    <span className="text-[10px] text-slate-500 font-mono block pt-1 text-right">
-                      {new Date(msg.createdAt).toLocaleString()}
+                  </div>
+
+                  <div className="pt-3 mt-3 border-t border-slate-800/60 flex items-center justify-between text-xs text-emerald-400 font-semibold">
+                    <span className="inline-flex items-center gap-1 hover:underline">
+                      <Eye className="w-3.5 h-3.5" /> Read Full Message
                     </span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDeleteTarget({ type: 'message', id: msg._id, name: `message from ${msg.senderName}` });
+                      }}
+                      className="p-1 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                      title="Delete"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                 </div>
               ))}
@@ -518,6 +574,71 @@ const AdminDashboard = () => {
         </>
       )}
 
+      {/* Message Details Modal */}
+      {selectedMessage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+          <div className="relative w-full max-w-xl bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+              <div className="flex items-center gap-2">
+                <Mail className="w-5 h-5 text-emerald-400" />
+                <h3 className="text-base font-bold text-white">Inquiry Details</h3>
+              </div>
+              <button
+                onClick={() => setSelectedMessage(null)}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80">
+                <div>
+                  <h4 className="text-sm font-bold text-white">{selectedMessage.senderName}</h4>
+                  <a href={`mailto:${selectedMessage.email}`} className="text-xs text-emerald-400 font-mono hover:underline">
+                    {selectedMessage.email}
+                  </a>
+                </div>
+                <span className="text-[10px] font-mono text-slate-500">
+                  {formatDate(selectedMessage.createdAt)}
+                </span>
+              </div>
+
+              {selectedMessage.subject && (
+                <div>
+                  <span className="text-[11px] font-semibold text-slate-400 block mb-0.5">Subject</span>
+                  <p className="text-xs font-bold text-white">{selectedMessage.subject}</p>
+                </div>
+              )}
+
+              <div>
+                <span className="text-[11px] font-semibold text-slate-400 block mb-1">Message Body</span>
+                <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-200 text-xs leading-relaxed whitespace-pre-line max-h-60 overflow-y-auto">
+                  {selectedMessage.message}
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-3 flex items-center justify-end gap-3 border-t border-slate-800">
+              <button
+                onClick={() => setDeleteTarget({ type: 'message', id: selectedMessage._id, name: `message from ${selectedMessage.senderName}` })}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-500/10 border border-rose-500/20 transition-all cursor-pointer"
+              >
+                Delete
+              </button>
+              <a
+                href={`mailto:${selectedMessage.email}?subject=Re: ${encodeURIComponent(selectedMessage.subject || 'Portfolio Inquiry')}`}
+                className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-lg shadow-emerald-600/20 cursor-pointer"
+              >
+                <Send className="w-3.5 h-3.5" />
+                <span>Reply via Mail</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create / Edit Project Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
           <div className="relative w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
@@ -558,18 +679,56 @@ const AdminDashboard = () => {
                 ></textarea>
               </div>
 
+              {/* Interactive Tech Stack Chips Input */}
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Technologies (comma separated)
+                  Tech Stack List (Type and press Enter or click Add)
                 </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.techStack}
-                  onChange={(e) => setFormData({ ...formData, techStack: e.target.value })}
-                  placeholder="React, Node.js, MongoDB, Express"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-emerald-500 transition-colors"
-                />
+                <div className="flex items-center gap-2 mb-2">
+                  <input
+                    type="text"
+                    value={techInput}
+                    onChange={(e) => setTechInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddTechChip();
+                      }
+                    }}
+                    placeholder="e.g. React, Node.js, MongoDB"
+                    className="flex-1 px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-emerald-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddTechChip}
+                    className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold text-xs rounded-xl border border-slate-700/60 cursor-pointer"
+                  >
+                    Add
+                  </button>
+                </div>
+
+                {/* Added Badges Display */}
+                <div className="flex flex-wrap gap-1.5 min-h-[32px] p-2 bg-slate-950/60 rounded-xl border border-slate-800/80">
+                  {techStackList.length === 0 ? (
+                    <span className="text-[11px] text-slate-600 font-mono p-1">No tech tags added yet.</span>
+                  ) : (
+                    techStackList.map((tech, idx) => (
+                      <span
+                        key={idx}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 text-emerald-300 text-xs border border-slate-700 font-mono"
+                      >
+                        <span>{tech}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveTechChip(idx)}
+                          className="hover:text-rose-400 p-0.5 rounded-full"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </span>
+                    ))
+                  )}
+                </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -636,6 +795,7 @@ const AdminDashboard = () => {
         </div>
       )}
 
+      {/* Delete Confirmation Modal */}
       {deleteTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
           <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-5">

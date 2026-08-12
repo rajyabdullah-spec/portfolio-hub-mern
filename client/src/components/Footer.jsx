@@ -16,25 +16,29 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-8 border-b border-slate-800/60">
           
-          {/* Logo & Tagline */}
-          <div className="flex flex-col items-center md:items-start text-center md:text-left">
-            <div className="flex items-center gap-2 font-bold text-lg text-primary-500">
+          {/* Logo, Tagline & Status */}
+          <div className="flex flex-col items-center md:items-start text-center md:text-left space-y-2">
+            <div className="flex items-center gap-2 font-bold text-lg text-emerald-400">
               <Code2 className="w-5 h-5" />
               <span>Portfolio<span className="text-white">Hub</span></span>
             </div>
-            <p className="text-xs text-slate-400 mt-1 max-w-sm">
+            <p className="text-xs text-slate-400 max-w-sm">
               Crafting modern web applications with precision, speed, and clean code.
             </p>
+            <div className="inline-flex items-center gap-1.5 text-[10px] font-mono text-slate-500 pt-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>All services & APIs operational</span>
+            </div>
           </div>
 
           {/* Social Links */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {/* GitHub SVG Icon */}
             <a
               href="https://github.com/rajyabdullah-spec"
               target="_blank"
               rel="noreferrer"
-              className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700 transition-all duration-300 hover:scale-110"
+              className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:border-emerald-500/40 transition-all duration-300 hover:scale-105 shadow-sm"
               aria-label="GitHub"
             >
               <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -47,7 +51,7 @@ const Footer = () => {
               href="https://www.linkedin.com/in/raji-al-abdullah-6270941a6/"
               target="_blank"
               rel="noreferrer"
-              className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-primary-400 hover:border-slate-700 transition-all duration-300 hover:scale-110"
+              className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-emerald-400 hover:border-emerald-500/40 transition-all duration-300 hover:scale-105 shadow-sm"
               aria-label="LinkedIn"
             >
               <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -58,7 +62,7 @@ const Footer = () => {
             {/* Email */}
             <a
               href="mailto:Rajyabdullah@gmail.com"
-              className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-emerald-400 hover:border-slate-700 transition-all duration-300 hover:scale-110"
+              className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-emerald-400 hover:border-emerald-500/40 transition-all duration-300 hover:scale-105 shadow-sm"
               aria-label="Email"
             >
               <Mail className="w-4 h-4" />
@@ -68,10 +72,10 @@ const Footer = () => {
           {/* Back to Top Button */}
           <button
             onClick={scrollToTop}
-            className="flex items-center gap-2 text-xs font-mono text-slate-400 hover:text-white px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all cursor-pointer group"
+            className="flex items-center gap-2 text-xs font-mono font-medium text-slate-400 hover:text-white px-4 py-2.5 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-emerald-500/40 hover:bg-slate-800/80 transition-all cursor-pointer group shadow-sm"
           >
             <span>Back to top</span>
-            <ArrowUp className="w-3.5 h-3.5 group-hover:-translate-y-0.5 transition-transform" />
+            <ArrowUp className="w-3.5 h-3.5 text-emerald-400 group-hover:-translate-y-1 transition-transform duration-200" />
           </button>
         </div>
 
