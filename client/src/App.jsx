@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -7,42 +7,15 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Hero from './components/Hero';
 import AboutAndSkills from './components/AboutAndSkills';
-import ProjectsGrid from './components/ProjectsGrid';
+import PortfolioGrid from './components/PortfolioGrid';
 import ContactForm from './components/ContactForm';
 import LoginPage from './pages/LoginPage';
 import AdminDashboard from './pages/AdminDashboard';
-
-const ScrollToHash = () => {
-  const { hash, pathname } = useLocation();
-
-  useEffect(() => {
-    if (hash) {
-      const scrollToElement = () => {
-        const element = document.querySelector(hash);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
-        }
-      };
-
-      const timer1 = setTimeout(scrollToElement, 150);
-      const timer2 = setTimeout(scrollToElement, 600);
-
-      return () => {
-        clearTimeout(timer1);
-        clearTimeout(timer2);
-      };
-    }
-  }, [hash, pathname]);
-
-  return null;
-};
 
 function App() {
   return (
     <AuthProvider>
       <Router>
-        <ScrollToHash />
-        {/* Global Toast Notifications Provider */}
         <Toaster
           position="top-right"
           toastOptions={{
@@ -73,17 +46,10 @@ function App() {
           <Navbar />
           <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <Routes>
-              <Route 
-                path="/" 
-                element={
-                  <div className="space-y-12">
-                    <Hero />
-                    <AboutAndSkills />
-                    <ProjectsGrid />
-                    <ContactForm />
-                  </div>
-                } 
-              />
+              <Route path="/" element={<Hero />} />
+              <Route path="/about" element={<AboutAndSkills />} />
+              <Route path="/portfolio" element={<PortfolioGrid />} />
+              <Route path="/contact" element={<ContactForm />} />
               <Route path="/login" element={<LoginPage />} />
               <Route 
                 path="/admin" 

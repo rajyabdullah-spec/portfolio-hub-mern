@@ -15,7 +15,6 @@ const ProjectsGrid = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Helper to match category logic for counts and filtering
   const isProjectInCategory = (project, category) => {
     if (category === 'All') return true;
 
@@ -60,7 +59,7 @@ const ProjectsGrid = () => {
         }
       } catch (err) {
         if (isMounted) {
-          setError('Failed to fetch projects from backend API.');
+          setError('Failed to fetch portfolio data from backend API.');
         }
       } finally {
         if (isMounted) {
@@ -86,19 +85,27 @@ const ProjectsGrid = () => {
   const hasMore = visibleCount < filteredProjects.length;
 
   return (
-    <section id="projects" className="py-16 border-t border-slate-800/60 select-none">
+    <motion.section 
+      id="portfolio"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.5 }}
+      className="py-12 md:py-16 select-none"
+    >
       <div className="text-center max-w-xl mx-auto mb-10 space-y-2">
-        <div className="inline-flex items-center gap-2 text-emerald-400 font-semibold text-sm">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-semibold text-sm shadow-sm">
           <FolderGit2 className="w-4 h-4" />
-          <span>PORTFOLIO WORK</span>
+          <span>PORTFOLIO SHOWCASE</span>
         </div>
-        <h2 className="text-3xl font-bold text-white">Engineering Progression</h2>
-        <p className="text-xs text-slate-400 mt-1">
-          A chronological journey tracking my growth across 70+ technical milestones.
+        <h2 className="text-3xl md:text-4xl font-extrabold text-white mt-4">
+          Featured <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400">Works</span>
+        </h2>
+        <p className="text-sm text-slate-400 mt-2">
+          A curated collection of my full-stack applications and technical milestones.
         </p>
       </div>
 
-      {/* Filter Categories Buttons */}
       <div className="flex flex-wrap justify-center items-center gap-2 mb-10 px-4">
         <Filter className="w-4 h-4 text-slate-500 mr-1" />
         {CATEGORIES.map(category => {
@@ -111,7 +118,7 @@ const ProjectsGrid = () => {
               onClick={() => setActiveCategory(category)}
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-300 cursor-pointer border hover:-translate-y-0.5 active:translate-y-0 ${
                 isActive
-                  ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20 border-emerald-400'
+                  ? 'bg-gradient-to-r from-emerald-600 to-teal-500 text-white shadow-lg shadow-emerald-500/25 border-emerald-400/50'
                   : 'bg-slate-900/80 text-slate-400 hover:text-emerald-400 border-slate-800/80 hover:border-emerald-500/40 hover:bg-slate-800/60'
               }`}
             >
@@ -119,7 +126,7 @@ const ProjectsGrid = () => {
               <span
                 className={`text-[10px] font-mono px-1.5 py-0.5 rounded-md ${
                   isActive
-                    ? 'bg-emerald-700/80 text-emerald-100'
+                    ? 'bg-white/20 text-white shadow-inner'
                     : 'bg-slate-800 text-slate-500'
                 }`}
               >
@@ -131,15 +138,16 @@ const ProjectsGrid = () => {
       </div>
 
       {loading ? (
-        <div className="flex justify-center items-center py-12">
-          <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+        <div className="flex flex-col justify-center items-center py-20 space-y-4">
+          <Loader2 className="w-10 h-10 text-emerald-500 animate-spin" />
+          <span className="text-slate-400 text-sm font-mono animate-pulse">Loading Portfolio...</span>
         </div>
       ) : error ? (
-        <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-center text-sm max-w-lg mx-auto">
+        <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-center text-sm max-w-lg mx-auto shadow-sm">
           {error}
         </div>
       ) : filteredProjects.length === 0 ? (
-        <p className="text-center text-slate-500 text-sm py-8">
+        <p className="text-center text-slate-500 text-sm py-12 bg-slate-900/50 rounded-2xl border border-slate-800/50 max-w-md mx-auto">
           No projects found under this category filter.
         </p>
       ) : (
@@ -164,7 +172,6 @@ const ProjectsGrid = () => {
             </AnimatePresence>
           </motion.div>
           
-          {/* Action Pagination Controls */}
           <div className="flex justify-center items-center gap-4 mt-12">
             {hasMore && (
               <button
@@ -179,9 +186,11 @@ const ProjectsGrid = () => {
               <button
                 onClick={() => {
                   setVisibleCount(ITEMS_PER_PAGE);
-                  const element = document.getElementById('projects');
+                  const element = document.getElementById('portfolio');
                   if (element) {
                     element.scrollIntoView({ behavior: 'smooth' });
+                  } else {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                   }
                 }}
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-900/90 border border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700 hover:bg-slate-800/80 transition-all cursor-pointer font-semibold text-xs shadow-md hover:-translate-y-0.5 active:translate-y-0"
@@ -193,7 +202,7 @@ const ProjectsGrid = () => {
           </div>
         </>
       )}
-    </section>
+    </motion.section>
   );
 };
 

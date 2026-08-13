@@ -1,24 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Code2, UserCheck, LayoutDashboard, Menu, X } from 'lucide-react';
-import { motion, useScroll, useSpring } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
   const { user } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState('#about');
   const menuRef = useRef(null);
-
-  // Framer Motion Scroll Progress Bar Setup
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, {
-    stiffness: 200,
-    damping: 30,
-    restDelta: 0.001
-  });
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -32,94 +22,33 @@ const Navbar = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [mobileMenuOpen]);
 
-  // Handle route change & active section updates
-  useEffect(() => {
-    if (location.pathname !== '/') {
-      setActiveSection('');
-      return;
-    }
-
-    // Handle initial scroll positioning if navigated from another page with hash
-    if (location.hash) {
-      const targetElement = document.querySelector(location.hash);
-      if (targetElement) {
-        setTimeout(() => {
-          targetElement.scrollIntoView({ behavior: 'auto' });
-          setActiveSection(location.hash);
-        }, 50);
-      }
-    }
-
-    const handleScroll = () => {
-      const isBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 100;
-      if (isBottom) {
-        setActiveSection('#contact');
-        return;
-      }
-
-      const sections = ['about', 'projects', 'contact'];
-      const scrollPosition = window.scrollY + 200;
-
-      for (const sectionId of sections) {
-        const element = document.getElementById(sectionId);
-        if (element) {
-          const top = element.offsetTop;
-          const height = element.offsetHeight;
-          if (scrollPosition >= top && scrollPosition < top + height) {
-            setActiveSection(`#${sectionId}`);
-            break;
-          }
-        }
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [location.pathname, location.hash]);
-
-  const handleNavClick = (e, targetId) => {
-    e.preventDefault();
-    setMobileMenuOpen(false);
-
-    if (location.pathname !== '/') {
-      navigate(`/${targetId}`);
-    } else {
-      setActiveSection(targetId);
-      const element = document.querySelector(targetId);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-  };
-
   const isAdminRoute = location.pathname === '/admin';
   const isLoginRoute = location.pathname === '/login';
+
+  const navLinks = [
+    { path: '/', label: 'Home' },
+    { path: '/about', label: 'About' },
+    { path: '/Portfolio', label: 'Portfolio' },
+    { path: '/contact', label: 'Contact' }
+  ];
 
   return (
     <nav ref={menuRef} className="sticky top-0 z-50 backdrop-blur-md bg-slate-950/85 border-b border-slate-800/80 transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           
-          {/* Brand Logo */}
           <Link to="/" className="flex items-center gap-2 font-bold text-xl text-emerald-400 hover:opacity-90 transition-opacity">
             <Code2 className="w-6 h-6" />
             <span>Portfolio<span className="text-white">Hub</span></span>
           </Link>
           
-          {/* Desktop Navigation Links */}
           <div className="hidden sm:flex items-center gap-6 text-sm font-medium text-slate-300">
-            {[
-              { id: '#about', label: 'About' },
-              { id: '#projects', label: 'Projects' },
-              { id: '#contact', label: 'Contact' }
-            ].map((navItem) => {
-              const isActive = activeSection === navItem.id;
+            {navLinks.map((navItem) => {
+              const isActive = location.pathname === navItem.path;
               return (
-                <a
-                  key={navItem.id}
-                  href={navItem.id}
-                  onClick={(e) => handleNavClick(e, navItem.id)}
+                <Link
+                  key={navItem.path}
+                  to={navItem.path}
                   className={`relative py-1 transition-all duration-150 ${
                     isActive ? 'text-emerald-400 font-bold' : 'hover:text-emerald-400'
                   }`}
@@ -132,7 +61,7 @@ const Navbar = () => {
                       transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                     />
                   )}
-                </a>
+                </Link>
               );
             })}
             
@@ -163,12 +92,10 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
           <div className="sm:hidden flex items-center gap-2">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white focus:outline-none"
-              aria-label="Toggle Navigation Menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -176,44 +103,20 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Top Scroll Progress Indicator */}
-      {location.pathname === '/' && (
-        <motion.div
-          className="h-[2px] bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-300 origin-left shadow-[0_0_10px_rgba(16,185,129,0.7)]"
-          style={{ scaleX }}
-        />
-      )}
-
-      {/* Mobile Drawer Navigation */}
       {mobileMenuOpen && (
         <div className="sm:hidden bg-slate-950/95 border-b border-slate-800 px-4 pt-2 pb-6 space-y-3 shadow-2xl">
-          <a
-            href="#about"
-            onClick={(e) => handleNavClick(e, '#about')}
-            className={`block px-3 py-2 rounded-lg text-sm font-medium ${
-              activeSection === '#about' ? 'bg-slate-900 text-emerald-400 font-bold border-l-2 border-emerald-400' : 'text-slate-300 hover:text-white hover:bg-slate-900'
-            }`}
-          >
-            About
-          </a>
-          <a
-            href="#projects"
-            onClick={(e) => handleNavClick(e, '#projects')}
-            className={`block px-3 py-2 rounded-lg text-sm font-medium ${
-              activeSection === '#projects' ? 'bg-slate-900 text-emerald-400 font-bold border-l-2 border-emerald-400' : 'text-slate-300 hover:text-white hover:bg-slate-900'
-            }`}
-          >
-            Projects
-          </a>
-          <a
-            href="#contact"
-            onClick={(e) => handleNavClick(e, '#contact')}
-            className={`block px-3 py-2 rounded-lg text-sm font-medium ${
-              activeSection === '#contact' ? 'bg-slate-900 text-emerald-400 font-bold border-l-2 border-emerald-400' : 'text-slate-300 hover:text-white hover:bg-slate-900'
-            }`}
-          >
-            Contact
-          </a>
+          {navLinks.map((navItem) => (
+            <Link
+              key={navItem.path}
+              to={navItem.path}
+              onClick={() => setMobileMenuOpen(false)}
+              className={`block px-3 py-2 rounded-lg text-sm font-medium ${
+                location.pathname === navItem.path ? 'bg-slate-900 text-emerald-400 font-bold border-l-2 border-emerald-400' : 'text-slate-300 hover:text-white hover:bg-slate-900'
+              }`}
+            >
+              {navItem.label}
+            </Link>
+          ))}
 
           <div className="pt-2 border-t border-slate-800">
             {user ? (
