@@ -14,17 +14,18 @@ Portfolio Hub is a modern, production-ready Full-Stack MERN (MongoDB, Express.js
 - **Modern UI & Responsive Design:** Built using React 18, Framer Motion, Tailwind CSS v4, and Lucide React icons.
 
 ### Admin Portal & Security
-- **Cyber Vault Login Gate:** Interactive security shutter mechanism with passcode visibility toggle and custom authentication animations.
-- **JWT Authentication:** Stateful user authentication backed by secure HTTP-Only Cookies.
-- **Protected Routes Guard:** Restricts `/admin` access strictly to authorized administrators.
+- **Lamp Toggle Login Gate:** Interactive Lamp pull-string switch with spring physics, custom Web Audio click feedback, automatic email field focus, Caps Lock detection, and passcode visibility toggle.
+- **JWT Authentication:** Stateful user authentication backed by secure HTTP-Only Cookies with cross-origin credential passing.
+- **Protected Routes Guard:** Restricts `/admin` access strictly to authorized administrators (`protect` & `adminOnly` middleware).
 - **Advanced Dashboard Engine:** 
-  * Features real-time search filtering, lightweight text-only rendering, and a smart pagination system for handling large project datasets seamlessly.
+  * Features real-time search filtering, lightweight rendering, instant manual refresh capability, and smart pagination for large project datasets.
+  * Optimistic UI state updates for immediate unread-to-read inbox status switching.
 - **Full Dynamic Content Management (CRUD):**
-  * **Create:** Add new projects with custom tech stacks, advanced URL routing (Live Demo, GIF Media, Specific Source Folder, and Main Repo Root).
+  * **Create:** Add new projects with dynamic tech stack chips, URL routing (Live Demo, GIF Media, Specific Source Folder, and Main Repo Root).
   * **Read:** Fetch live projects dynamically from MongoDB.
-  * **Update:** Edit existing project details instantly via a pre-filled admin modal.
-  * **Delete:** Remove outdated projects with custom warning confirmation guards.
-  * **Inbox Management:** Read, mark as read, reply directly, and manage client contact inquiries.
+  * **Update:** Edit existing project details instantly via pre-filled admin modals.
+  * **Delete:** Remove outdated projects with custom confirmation modal guards.
+  * **Inbox Management:** Read, mark as read, reply via direct mail link, and manage client contact inquiries.
 
 ## Tech Stack & Architecture
 
@@ -40,15 +41,16 @@ Portfolio Hub is a modern, production-ready Full-Stack MERN (MongoDB, Express.js
 portfolio-hub-mern/
 ├── backend/                  # Express API Server & Database Logic
 │   ├── config/               # Database Connection Configuration
-│   ├── controllers/          # Request Handlers & Business Logic
+│   ├── controllers/          # Request Handlers & Business Logic (authController, projectController, etc.)
 │   ├── middlewares/          # JWT Protect Guard & Error Handling
 │   ├── models/               # Mongoose Schemas (User, Project, Message)
 │   ├── routes/               # API Route Endpoints
-│   ├── seeders/              # Database Seeder Scripts
+│   ├── utils/                # Seeder Scripts (seedAdminUser)
 │   └── server.js             # Application Entry Point
 │
 ├── client/                   # Vite React Frontend
 │   ├── src/
+│   │   ├── api/              # Axios Centralized Client (withCredentials: true)
 │   │   ├── components/       # Reusable UI Components (ProjectCard3D, AboutAndSkills, ContactForm, Footer)
 │   │   ├── context/          # Auth Context Provider
 │   │   ├── pages/            # View Pages (LoginPage, AdminDashboard)
@@ -82,14 +84,17 @@ Create a `.env` file inside the backend folder:
 PORT=5000
 NODE_ENV=development
 MONGO_URI=mongodb://127.0.0.1:27017/portfolio_hub
-JWT_SECRET=your_super_secret_jwt_key_here
-JWT_EXPIRE=30d
-JWT_COOKIE_EXPIRE=30
+JWT_SECRET=super_secret_jwt_key_2026_capstone
+ADMIN_EMAIL=admin@domain.com
+ADMIN_PASSWORD=your_secure_password
+JWT_EXPIRE=1d
+JWT_COOKIE_EXPIRE=1
+CLIENT_URL=http://localhost:5173
 ```
 
 Seed initial Admin user and default projects (Optional):
 ```bash
-node seeder.js
+npm run seed
 ```
 
 Run Express Backend Server:
