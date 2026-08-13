@@ -10,7 +10,8 @@ Portfolio Hub is a modern, production-ready Full-Stack MERN (MongoDB, Express.js
 - **Strict Category Filtering:** Advanced exact-match filtering algorithm to organize 70+ chronological milestones across specialized tech stacks without bleed-over.
 - **Interactive Skills Badges:** Hoverable tech stack badges displaying dynamic project count tooltips.
 - **Modal Contact Form:** Sleek, non-intrusive Call-To-Action banner that opens an animated contact modal with backdrop blur for direct message submission.
-- **Smooth Hash Navigation & Back-to-Top:** Seamless scrolling across sections with an integrated back-to-top button in the footer.
+- **Multi-Page Routing System:** Clean page navigation via React Router v7 (`/`, `/about`, `/portfolio`, `/contact`) with active nav indicators.
+- **Dedicated Portfolio Showcase:** Dynamic Exact-Match filtering algorithm to organize 70+ chronological milestones across specialized tech stacks without bleed-over.
 - **Modern UI & Responsive Design:** Built using React 18, Framer Motion, Tailwind CSS v4, and Lucide React icons.
 
 ### Admin Portal & Security
@@ -51,7 +52,7 @@ portfolio-hub-mern/
 ├── client/                   # Vite React Frontend
 │   ├── src/
 │   │   ├── api/              # Axios Centralized Client (withCredentials: true)
-│   │   ├── components/       # Reusable UI Components (ProjectCard3D, AboutAndSkills, ContactForm, Footer)
+│   │   ├── components/       # Reusable UI Components (Hero, PortfolioGrid, ProjectCard3D, AboutAndSkills, ContactForm, Navbar, Footer)
 │   │   ├── context/          # Auth Context Provider
 │   │   ├── pages/            # View Pages (LoginPage, AdminDashboard)
 │   │   └── App.jsx           # Main Router Setup
@@ -126,7 +127,7 @@ The application will be accessible at `http://localhost:5173`.
 - `POST /api/auth/login` — Public — Authenticates admin & sets HTTP-Only Cookie
 - `GET /api/auth/me` — Private — Verifies current active user session
 - `POST /api/auth/logout` — Private — Clears authentication cookie
-- `GET /api/projects` — Public — Fetches all portfolio projects chronologically
+- `GET /api/projects` — Public — Fetches all portfolio items chronologically for the Portfolio Showcase
 - `POST /api/projects` — Private (Admin) — Creates a new project entry
 - `PUT /api/projects/:id` — Private (Admin) — Updates an existing project by ID
 - `DELETE /api/projects/:id` — Private (Admin) — Deletes a project by ID
