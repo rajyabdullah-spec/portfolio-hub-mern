@@ -4,9 +4,12 @@ const User = require('../models/User');
 const sendTokenResponse = (user, statusCode, res) => {
   const token = user.getSignedJwtToken();
 
+  // Convert env variable strictly to number
+  const cookieExpireDays = Number(process.env.JWT_COOKIE_EXPIRE) || 30;
+
   const options = {
     expires: new Date(
-      Date.now() + (process.env.JWT_COOKIE_EXPIRE || 30) * 24 * 60 * 60 * 1000
+      Date.now() + cookieExpireDays * 24 * 60 * 60 * 1000
     ),
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
@@ -32,8 +35,9 @@ const sendTokenResponse = (user, statusCode, res) => {
 // @access  Public
 exports.register = async (req, res, next) => {
   try {
-    const { name, email, password, role } = req.body;
-    const user = await User.create({ name, email, password, role });
+    // ⚠️ Secured: Prevent users from passing "role" in request body
+    const { name, email, password } = req.body;
+    const user = await User.create({ name, email, password });
     sendTokenResponse(user, 201, res);
   } catch (error) {
     next(error);
@@ -73,6 +77,9 @@ exports.login = async (req, res, next) => {
 exports.getMe = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
     res.status(200).json({ success: true, data: user });
   } catch (error) {
     next(error);
@@ -83,8 +90,9 @@ exports.getMe = async (req, res, next) => {
 // @route   POST /api/auth/logout
 // @access  Public / Private
 exports.logout = async (req, res, next) => {
+  // Expire cookie immediately with Date(0)
   res.cookie('token', 'none', {
-    expires: new Date(Date.now() + 10 * 1000),
+    expires: new Date(0),
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',

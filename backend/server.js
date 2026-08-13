@@ -22,7 +22,7 @@ connectDB().then(() => {
 
 const app = express();
 
-// Security Middlewares (Configured to allow Cross-Origin Requests)
+// Security Middlewares
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: 'cross-origin' },
@@ -40,20 +40,21 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
-// Core Middlewares & CORS Setup
+// Allowed Origins for CORS (Support env for Production deployment)
 const allowedOrigins = [
   'http://localhost:5173',
   'http://127.0.0.1:5173',
-];
+  process.env.CLIENT_URL, // e.g. https://your-portfolio.vercel.app
+].filter(Boolean);
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      // Allow requests with no origin (like Postman or server-to-server)
+      if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        callback(null, true); // Permissive for local development
+        callback(new Error('Not allowed by CORS Policy'));
       }
     },
     credentials: true,

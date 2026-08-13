@@ -6,7 +6,7 @@ const protect = async (req, res, next) => {
   let token;
 
   // 1. Check for token in HTTP-Only Cookie
-  if (req.cookies && req.cookies.token) {
+  if (req.cookies && req.cookies.token && req.cookies.token !== 'none') {
     token = req.cookies.token;
   }
   // 2. Fallback check for Authorization Bearer Header
