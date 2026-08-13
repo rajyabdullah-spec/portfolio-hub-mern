@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { User, Code2, Copy, Check, Terminal, Server, Database } from 'lucide-react';
+import toast from 'react-hot-toast';
 import API from '../api/axios'; // ✅ Centralized API client
 
 const SKILLS_TEMPLATE = [
@@ -31,12 +32,15 @@ const AboutAndSkills = () => {
   const myEmail = "Rajyabdullah@gmail.com";
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchAndCalculateSkills = async () => {
       try {
-        // ✅ Safely fetch via centralized API instance
         const response = await API.get('/projects');
         const allProjects = response.data.data || [];
         
+        if (!isMounted) return;
+
         const updatedSkills = SKILLS_TEMPLATE.map(skill => {
           const matchCount = allProjects.filter(project => 
             (project.techStack || []).some(tech => 
@@ -54,16 +58,21 @@ const AboutAndSkills = () => {
     };
     
     fetchAndCalculateSkills();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(myEmail);
     setCopied(true);
+    toast.success('Email copied to clipboard!');
     setTimeout(() => setCopied(false), 2500);
   };
 
   return (
-    <section id="about" className="py-16 space-y-16 border-t border-slate-800/60">
+    <section id="about" className="py-16 space-y-16 border-t border-slate-800/60 select-none">
       
       {/* About Section */}
       <div className="max-w-4xl mx-auto space-y-8">
@@ -74,15 +83,15 @@ const AboutAndSkills = () => {
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Full-Stack Software Engineer</h2>
           <p className="text-slate-400 text-sm leading-relaxed max-w-2xl mx-auto">
-            Passionate about building scalable, secure, and intuitive web applications using the MERN stack.
-            Focused on clean architecture, modern UI design, and robust backend microservices.
+            Passionately engineering scalable, secure, and intuitive web applications using the MERN stack.
+            Focused on clean architecture, modern UI design, and robust backend services.
           </p>
 
           {/* Copy Email Button */}
           <div className="pt-2 flex justify-center">
             <button
               onClick={handleCopy}
-              className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-mono font-semibold transition-all duration-300 border cursor-pointer ${
+              className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-mono font-semibold transition-all duration-300 border cursor-pointer hover:-translate-y-0.5 active:translate-y-0 ${
                 copied
                   ? 'bg-emerald-500/10 border-emerald-500 text-emerald-400 shadow-lg shadow-emerald-500/20'
                   : 'bg-slate-900 border-slate-800 text-slate-300 hover:border-emerald-500/50 hover:text-white shadow-md'

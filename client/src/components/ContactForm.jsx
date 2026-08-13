@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, CheckCircle2, AlertCircle, Loader2, MessageSquare, X, Mail } from 'lucide-react';
+import { Send, Loader2, MessageSquare, X, Mail } from 'lucide-react';
+import toast from 'react-hot-toast';
 import API from '../api/axios'; // ✅ Centralized API client
 
 const ContactForm = () => {
@@ -11,7 +12,7 @@ const ContactForm = () => {
     subject: '',
     message: '',
   });
-  const [status, setStatus] = useState({ loading: false, success: false, error: '' });
+  const [loading, setLoading] = useState(false);
 
   // 3D Tilt & Glow State
   const [rotateX, setRotateX] = useState(0);
@@ -59,24 +60,24 @@ const ContactForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setStatus({ loading: true, success: false, error: '' });
+    setLoading(true);
 
     try {
       await API.post('/messages', formData);
-      setStatus({ loading: false, success: true, error: '' });
+      setLoading(false);
+      
+      // Clear form and close modal
       setFormData({ senderName: '', email: '', subject: '', message: '' });
+      setIsOpen(false);
 
-      // Auto-close modal smoothly after success message
-      setTimeout(() => {
-        setIsOpen(false);
-        setStatus((prev) => ({ ...prev, success: false }));
-      }, 1500);
+      // Trigger floating success toast
+      toast.success('Thank you! Your message has been sent successfully.');
     } catch (err) {
-      setStatus({
-        loading: false,
-        success: false,
-        error: err.response?.data?.message || 'Failed to send message. Please try again.',
-      });
+      setLoading(false);
+      const errorMessage = err.response?.data?.message || 'Failed to send message. Please try again.';
+      
+      // Trigger floating error toast
+      toast.error(errorMessage);
     }
   };
 
@@ -158,24 +159,6 @@ const ContactForm = () => {
                 <p className="text-xs text-slate-400">Fill out the details below and I'll get back to you promptly.</p>
               </div>
 
-              {status.success && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mb-4 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs flex items-center gap-2"
-                >
-                  <CheckCircle2 className="w-5 h-5 shrink-0" />
-                  <span>Thank you! Your message has been sent successfully.</span>
-                </motion.div>
-              )}
-
-              {status.error && (
-                <div className="mb-4 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs flex items-center gap-2">
-                  <AlertCircle className="w-5 h-5 shrink-0" />
-                  <span>{status.error}</span>
-                </div>
-              )}
-
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
@@ -231,10 +214,10 @@ const ContactForm = () => {
 
                 <button
                   type="submit"
-                  disabled={status.loading}
+                  disabled={loading}
                   className="w-full inline-flex justify-center items-center gap-2 py-3.5 px-5 rounded-xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-xs tracking-wide transition-all duration-300 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 border border-emerald-400/30 cursor-pointer"
                 >
-                  {status.loading ? (
+                  {loading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
                     <>

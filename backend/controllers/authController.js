@@ -5,7 +5,7 @@ const sendTokenResponse = (user, statusCode, res) => {
   const token = user.getSignedJwtToken();
 
   // Convert env variable strictly to number
-  const cookieExpireDays = Number(process.env.JWT_COOKIE_EXPIRE) || 30;
+  const cookieExpireDays = Number(process.env.JWT_COOKIE_EXPIRE) || 1;
 
   const options = {
     expires: new Date(
@@ -35,7 +35,7 @@ const sendTokenResponse = (user, statusCode, res) => {
 // @access  Public
 exports.register = async (req, res, next) => {
   try {
-    // ⚠️ Secured: Prevent users from passing "role" in request body
+    // Secured: Prevent users from passing "role" in request body
     const { name, email, password } = req.body;
     const user = await User.create({ name, email, password });
     sendTokenResponse(user, 201, res);

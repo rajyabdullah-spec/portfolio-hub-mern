@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Plus, Trash2, Edit2, Loader2, X, FolderGit2, AlertCircle, 
-  CheckCircle2, LogOut, Mail, Inbox, Send, Search,
+  Plus, Trash2, Edit2, Loader2, X, FolderGit2, 
+  LogOut, Mail, Inbox, Send, Search,
   Sparkles, MessageSquare, Layers, ChevronLeft, ChevronRight,
   Eye, RefreshCw
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import API from '../api/axios';
 
@@ -44,8 +45,6 @@ const AdminDashboard = () => {
 
   const [actionLoading, setActionLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
 
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -74,7 +73,7 @@ const AdminDashboard = () => {
       const ordered = data.sort((a, b) => (b._id || '').localeCompare(a._id || ''));
       setProjects(ordered);
     } catch (err) {
-      setError('Failed to load projects');
+      toast.error('Failed to load projects');
     } finally {
       setLoadingProjects(false);
     }
@@ -85,7 +84,7 @@ const AdminDashboard = () => {
       const response = await API.get('/messages');
       setMessages(response.data.data || []);
     } catch (err) {
-      setError('Failed to load messages');
+      toast.error('Failed to load messages');
     } finally {
       setLoadingMessages(false);
     }
@@ -95,6 +94,7 @@ const AdminDashboard = () => {
     setRefreshing(true);
     await Promise.all([fetchProjects(), fetchMessages()]);
     setRefreshing(false);
+    toast.success('Dashboard data refreshed');
   };
 
   useEffect(() => {
@@ -105,9 +105,10 @@ const AdminDashboard = () => {
   const handleLogout = async () => {
     try {
       await logout();
+      toast.success('Logged out successfully');
       navigate('/login');
     } catch (err) {
-      setError('Failed to logout');
+      toast.error('Failed to logout');
     }
   };
 
@@ -151,7 +152,6 @@ const AdminDashboard = () => {
   const handleSubmitProject = async (e) => {
     e.preventDefault();
     setActionLoading(true);
-    setError('');
 
     let currentStack = [...techStackList];
     if (techInput.trim() && !currentStack.includes(techInput.trim())) {
@@ -166,19 +166,18 @@ const AdminDashboard = () => {
     try {
       if (editingProject) {
         await API.put(`/projects/${editingProject._id}`, formattedData);
-        setSuccess('Project updated successfully!');
+        toast.success('Project updated successfully!');
       } else {
         await API.post('/projects', formattedData);
-        setSuccess('Project created successfully!');
+        toast.success('Project created successfully!');
       }
 
       setIsModalOpen(false);
       fetchProjects();
     } catch (err) {
-      setError(err.response?.data?.message || 'Operation failed. Please check inputs.');
+      toast.error(err.response?.data?.message || 'Operation failed. Please check inputs.');
     } finally {
       setActionLoading(false);
-      setTimeout(() => setSuccess(''), 3000);
     }
   };
 
@@ -189,22 +188,21 @@ const AdminDashboard = () => {
     try {
       if (deleteTarget.type === 'project') {
         await API.delete(`/projects/${deleteTarget.id}`);
-        setSuccess('Project deleted successfully');
+        toast.success('Project deleted successfully');
         fetchProjects();
       } else if (deleteTarget.type === 'message') {
         await API.delete(`/messages/${deleteTarget.id}`);
-        setSuccess('Message deleted successfully');
+        toast.success('Message deleted successfully');
         if (selectedMessage?._id === deleteTarget.id) {
           setSelectedMessage(null);
         }
         fetchMessages();
       }
     } catch (err) {
-      setError('Failed to perform delete operation');
+      toast.error('Failed to perform delete operation');
     } finally {
       setActionLoading(false);
       setDeleteTarget(null);
-      setTimeout(() => setSuccess(''), 3000);
     }
   };
 
@@ -218,7 +216,7 @@ const AdminDashboard = () => {
       await API.put(`/messages/${id}/read`, {});
     } catch (err) {
       fetchMessages();
-      setError('Failed to mark message as read');
+      toast.error('Failed to mark message as read');
     }
   };
 
@@ -270,7 +268,7 @@ const AdminDashboard = () => {
 
           <button
             onClick={handleOpenCreateModal}
-            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs tracking-wide transition-all shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/30 cursor-pointer"
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs tracking-wide transition-all shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/30 cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
             <span>Add Project</span>
@@ -278,7 +276,7 @@ const AdminDashboard = () => {
 
           <button
             onClick={handleLogout}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900/80 hover:bg-rose-500/10 border border-slate-800 hover:border-rose-500/30 text-slate-400 hover:text-rose-400 font-bold text-xs transition-all cursor-pointer shadow-sm"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900/80 hover:bg-rose-500/10 border border-slate-800 hover:border-rose-500/30 text-slate-400 hover:text-rose-400 font-bold text-xs transition-all cursor-pointer shadow-sm hover:-translate-y-0.5 active:translate-y-0"
           >
             <LogOut className="w-4 h-4" />
             <span>Logout</span>
@@ -395,43 +393,6 @@ const AdminDashboard = () => {
           </div>
         </div>
       </div>
-
-      {/* Notifications */}
-      <AnimatePresence>
-        {success && (
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs flex items-center justify-between shadow-md"
-          >
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4" />
-              <span>{success}</span>
-            </div>
-            <button onClick={() => setSuccess('')} className="p-1 text-emerald-400 hover:text-white cursor-pointer">
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </motion.div>
-        )}
-
-        {error && (
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs flex items-center justify-between shadow-md"
-          >
-            <div className="flex items-center gap-2">
-              <AlertCircle className="w-4 h-4" />
-              <span>{error}</span>
-            </div>
-            <button onClick={() => setError('')} className="p-1 text-rose-400 hover:text-white cursor-pointer">
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Projects List Tab */}
       {activeTab === 'projects' && (
@@ -659,13 +620,13 @@ const AdminDashboard = () => {
               <div className="pt-3 flex items-center justify-end gap-3 border-t border-slate-800">
                 <button
                   onClick={() => setDeleteTarget({ type: 'message', id: selectedMessage._id, name: `message from ${selectedMessage.senderName}` })}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 border border-rose-500/20 hover:border-rose-500/40 transition-all cursor-pointer"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 border border-rose-500/20 hover:border-rose-500/40 transition-all cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
                 >
                   Delete
                 </button>
                 <a
                   href={`mailto:${selectedMessage.email}?subject=Re: ${encodeURIComponent(selectedMessage.subject || 'Portfolio Inquiry')}`}
-                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-lg shadow-emerald-600/20 cursor-pointer"
+                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-lg shadow-emerald-600/20 cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
                 >
                   <Send className="w-3.5 h-3.5" />
                   <span>Reply via Mail</span>
@@ -745,7 +706,7 @@ const AdminDashboard = () => {
                     <button
                       type="button"
                       onClick={handleAddTechChip}
-                      className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold text-xs rounded-xl border border-slate-700/60 cursor-pointer"
+                      className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold text-xs rounded-xl border border-slate-700/60 cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
                     >
                       Add
                     </button>
@@ -822,14 +783,14 @@ const AdminDashboard = () => {
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
-                    className="px-5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 transition-all cursor-pointer"
+                    className="px-5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 transition-all cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={actionLoading}
-                    className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs tracking-wide transition-all shadow-lg shadow-emerald-600/20 disabled:opacity-50 cursor-pointer"
+                    className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs tracking-wide transition-all shadow-lg shadow-emerald-600/20 disabled:opacity-50 cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
                   >
                     {actionLoading ? 'Saving...' : editingProject ? 'Save Changes' : 'Create Project'}
                   </button>
@@ -848,7 +809,7 @@ const AdminDashboard = () => {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-5"
+              className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-5 overflow-hidden"
             >
               <div className="flex items-center gap-3 text-rose-400">
                 <div className="p-3 rounded-2xl bg-rose-500/10 border border-rose-500/20">
@@ -867,14 +828,14 @@ const AdminDashboard = () => {
               <div className="pt-2 flex items-center justify-end gap-3">
                 <button
                   onClick={() => setDeleteTarget(null)}
-                  className="px-5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 transition-all cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 transition-all cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleConfirmDelete}
                   disabled={actionLoading}
-                  className="px-6 py-2.5 rounded-xl bg-rose-950/80 hover:bg-rose-900 text-rose-200 hover:text-white font-bold text-xs transition-all cursor-pointer border border-rose-800/60 disabled:opacity-50"
+                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-400 text-white font-bold text-xs tracking-wide transition-all duration-200 shadow-lg shadow-rose-600/25 border border-rose-400/30 cursor-pointer disabled:opacity-50 hover:-translate-y-0.5 active:translate-y-0"
                 >
                   {actionLoading ? 'Deleting...' : 'Yes, Delete'}
                 </button>

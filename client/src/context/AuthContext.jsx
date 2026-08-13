@@ -7,22 +7,32 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Check login status on reload
+  // Check login status on initial reload or application mount
   useEffect(() => {
+    let isMounted = true;
+
     const checkLoggedIn = async () => {
       try {
         const response = await API.get('/auth/me');
-        if (response.data.success) {
+        if (isMounted && response.data.success) {
           setUser(response.data.data);
         }
       } catch (error) {
-        setUser(null);
+        if (isMounted) {
+          setUser(null);
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     checkLoggedIn();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const login = async (email, password) => {
@@ -35,8 +45,13 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    await API.post('/auth/logout');
-    setUser(null);
+    try {
+      await API.post('/auth/logout');
+    } catch (error) {
+      console.error("Logout request failed", error);
+    } finally {
+      setUser(null);
+    }
   };
 
   return (

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ExternalLink, Code2, FolderGit2, PlayCircle, Share2, Check } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const ProjectCard3D = ({ project }) => {
   const [rotateX, setRotateX] = useState(0);
@@ -67,6 +68,7 @@ const ProjectCard3D = ({ project }) => {
 
     navigator.clipboard.writeText(targetUrl);
     setCopied(true);
+    toast.success('Project link copied to clipboard!');
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -77,7 +79,7 @@ const ProjectCard3D = ({ project }) => {
       onMouseLeave={handleMouseLeave}
       animate={{ rotateX, rotateY }}
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-      className="relative rounded-2xl bg-slate-900/90 border border-slate-800/80 p-6 group hover:border-emerald-500/50 transition-colors shadow-xl overflow-hidden flex flex-col justify-between min-h-[230px]"
+      className="relative rounded-2xl bg-slate-900/90 border border-slate-800/80 p-6 group hover:border-emerald-500/50 transition-colors shadow-xl overflow-hidden flex flex-col justify-between min-h-[230px] select-none"
     >
       <div
         className="pointer-events-none absolute -inset-px opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"
@@ -102,7 +104,7 @@ const ProjectCard3D = ({ project }) => {
           {/* Share Action */}
           <button
             onClick={handleShare}
-            className="p-1.5 rounded-lg bg-slate-800/60 hover:bg-slate-700 text-slate-400 hover:text-emerald-400 border border-slate-700/50 transition-all cursor-pointer z-10"
+            className="p-1.5 rounded-lg bg-slate-800/60 hover:bg-slate-700 text-slate-400 hover:text-emerald-400 border border-slate-700/50 transition-all cursor-pointer z-10 hover:-translate-y-0.5 active:translate-y-0"
             title="Share Project Link"
           >
             {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Share2 className="w-3.5 h-3.5" />}
@@ -139,7 +141,7 @@ const ProjectCard3D = ({ project }) => {
             href={project.liveUrl}
             target="_blank"
             rel="noreferrer"
-            className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-xs shadow-md shadow-emerald-500/20 transition-all border border-emerald-400/30"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-xs shadow-md shadow-emerald-500/20 transition-all border border-emerald-400/30 hover:-translate-y-0.5 active:translate-y-0"
           >
             <span>Live App</span>
             <ExternalLink className="w-3.5 h-3.5" />
@@ -149,7 +151,7 @@ const ProjectCard3D = ({ project }) => {
             href={project.imageUrl}
             target="_blank"
             rel="noreferrer"
-            className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-500 hover:from-indigo-500 hover:to-purple-400 text-white font-bold text-xs shadow-md shadow-indigo-500/20 transition-all border border-indigo-400/30"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-500 hover:from-indigo-500 hover:to-purple-400 text-white font-bold text-xs shadow-md shadow-indigo-500/20 transition-all border border-indigo-400/30 hover:-translate-y-0.5 active:translate-y-0"
           >
             <PlayCircle className="w-3.5 h-3.5" />
             <span>Watch Demo</span>
@@ -159,7 +161,7 @@ const ProjectCard3D = ({ project }) => {
             href={directFolderUrl}
             target="_blank"
             rel="noreferrer"
-            className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-semibold text-xs transition-all border border-slate-700"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-semibold text-xs transition-all border border-slate-700 hover:-translate-y-0.5 active:translate-y-0"
           >
             <Code2 className="w-3.5 h-3.5" />
             <span>Explore Code</span>
@@ -173,7 +175,7 @@ const ProjectCard3D = ({ project }) => {
               href={directFolderUrl}
               target="_blank"
               rel="noreferrer"
-              className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 transition-all"
+              className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 transition-all hover:-translate-y-0.5 active:translate-y-0"
               title="View Direct Project Code Folder"
             >
               <Code2 className="w-4 h-4" />
@@ -184,7 +186,7 @@ const ProjectCard3D = ({ project }) => {
             href={mainRepoUrl}
             target="_blank"
             rel="noreferrer"
-            className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 transition-all"
+            className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 transition-all hover:-translate-y-0.5 active:translate-y-0"
             title="Open Repository Root"
           >
             <FolderGit2 className="w-4 h-4" />

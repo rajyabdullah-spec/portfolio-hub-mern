@@ -33,7 +33,7 @@ Portfolio Hub is a modern, production-ready Full-Stack MERN (MongoDB, Express.js
 - **Backend:** Node.js, Express.js, RESTful API Architecture
 - **Database:** MongoDB & Mongoose ORM
 - **Authentication:** JSON Web Tokens (JWT), Bcrypt.js, HTTP-Only Cookies
-- **Version Control:** Git, GitHub (Feature Branching Workflow), Trello (Agile Kanban)
+- **Version Control:** Git, GitHub (Feature Branching Workflow)
 
 ## Repository Structure
 
@@ -45,7 +45,7 @@ portfolio-hub-mern/
 │   ├── middlewares/          # JWT Protect Guard & Error Handling
 │   ├── models/               # Mongoose Schemas (User, Project, Message)
 │   ├── routes/               # API Route Endpoints
-│   ├── utils/                # Seeder Scripts (seedAdminUser)
+│   ├── utils/                # Seeder Scripts (seedAdminUser, importData)
 │   └── server.js             # Application Entry Point
 │
 ├── client/                   # Vite React Frontend
@@ -87,7 +87,7 @@ MONGO_URI=mongodb://127.0.0.1:27017/portfolio_hub
 JWT_SECRET=super_secret_jwt_key_2026_capstone
 ADMIN_EMAIL=admin@domain.com
 ADMIN_PASSWORD=your_secure_password
-JWT_EXPIRE=1d
+JWT_EXPIRE=24h
 JWT_COOKIE_EXPIRE=1
 CLIENT_URL=http://localhost:5173
 ```
@@ -107,6 +107,11 @@ Open a new terminal, navigate to the client directory and install dependencies:
 ```bash
 cd client
 npm install
+```
+
+Create a .env file inside the client folder (Optional for custom backend URL):
+```bash
+VITE_API_BASE_URL=http://localhost:5000/api
 ```
 
 Run Vite React Frontend:

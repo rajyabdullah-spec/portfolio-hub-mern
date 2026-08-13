@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { FolderGit2, Loader2, Filter, ChevronDown, ChevronUp } from 'lucide-react';
 import ProjectCard3D from './ProjectCard3D';
 import API from '../api/axios';
@@ -45,21 +46,34 @@ const ProjectsGrid = () => {
   };
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchProjects = async () => {
       try {
         const response = await API.get('/projects');
         const data = response.data.data || [];
-        const strictlyOrderedData = data.sort((a, b) => a._id.localeCompare(b._id));
-        setProjects(strictlyOrderedData);
-        setFilteredProjects(strictlyOrderedData);
+        const strictlyOrderedData = data.sort((a, b) => (a._id || '').localeCompare(b._id || ''));
+        
+        if (isMounted) {
+          setProjects(strictlyOrderedData);
+          setFilteredProjects(strictlyOrderedData);
+        }
       } catch (err) {
-        setError('Failed to fetch projects from backend API.');
+        if (isMounted) {
+          setError('Failed to fetch projects from backend API.');
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchProjects();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -72,7 +86,7 @@ const ProjectsGrid = () => {
   const hasMore = visibleCount < filteredProjects.length;
 
   return (
-    <section id="projects" className="py-16 border-t border-slate-800/60">
+    <section id="projects" className="py-16 border-t border-slate-800/60 select-none">
       <div className="text-center max-w-xl mx-auto mb-10 space-y-2">
         <div className="inline-flex items-center gap-2 text-emerald-400 font-semibold text-sm">
           <FolderGit2 className="w-4 h-4" />
@@ -95,7 +109,7 @@ const ProjectsGrid = () => {
             <button
               key={category}
               onClick={() => setActiveCategory(category)}
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-300 cursor-pointer border ${
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-300 cursor-pointer border hover:-translate-y-0.5 active:translate-y-0 ${
                 isActive
                   ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20 border-emerald-400'
                   : 'bg-slate-900/80 text-slate-400 hover:text-emerald-400 border-slate-800/80 hover:border-emerald-500/40 hover:bg-slate-800/60'
@@ -103,10 +117,10 @@ const ProjectsGrid = () => {
             >
               <span>{category}</span>
               <span
-                className={`text-[10px] font-mono px-1.5 py-0.2 rounded-md ${
+                className={`text-[10px] font-mono px-1.5 py-0.5 rounded-md ${
                   isActive
                     ? 'bg-emerald-700/80 text-emerald-100'
-                    : 'bg-slate-800 text-slate-500 group-hover:text-slate-300'
+                    : 'bg-slate-800 text-slate-500'
                 }`}
               >
                 {categoryCount}
@@ -130,18 +144,32 @@ const ProjectsGrid = () => {
         </p>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {displayedProjects.map((project) => (
-              <ProjectCard3D key={project._id} project={project} />
-            ))}
-          </div>
+          <motion.div 
+            layout
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            <AnimatePresence>
+              {displayedProjects.map((project) => (
+                <motion.div
+                  key={project._id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <ProjectCard3D project={project} />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
           
           {/* Action Pagination Controls */}
           <div className="flex justify-center items-center gap-4 mt-12">
             {hasMore && (
               <button
                 onClick={() => setVisibleCount(prev => prev + ITEMS_PER_PAGE)}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-900/90 border border-slate-800 text-slate-300 hover:text-white hover:border-emerald-500/40 hover:bg-slate-800/80 transition-all cursor-pointer font-semibold text-xs shadow-lg"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-900/90 border border-slate-800 text-slate-300 hover:text-white hover:border-emerald-500/40 hover:bg-slate-800/80 transition-all cursor-pointer font-semibold text-xs shadow-lg hover:-translate-y-0.5 active:translate-y-0"
               >
                 <span>Load More</span>
                 <ChevronDown className="w-4 h-4 text-emerald-400" />
@@ -151,9 +179,12 @@ const ProjectsGrid = () => {
               <button
                 onClick={() => {
                   setVisibleCount(ITEMS_PER_PAGE);
-                  document.getElementById('projects').scrollIntoView({ behavior: 'smooth' });
+                  const element = document.getElementById('projects');
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                  }
                 }}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-900/90 border border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700 hover:bg-slate-800/80 transition-all cursor-pointer font-semibold text-xs shadow-md"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-900/90 border border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700 hover:bg-slate-800/80 transition-all cursor-pointer font-semibold text-xs shadow-md hover:-translate-y-0.5 active:translate-y-0"
               >
                 <span>Show Less</span>
                 <ChevronUp className="w-4 h-4 text-slate-400" />

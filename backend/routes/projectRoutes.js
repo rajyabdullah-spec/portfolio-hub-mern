@@ -9,7 +9,7 @@ const {
 } = require('../controllers/projectController');
 const { protect, adminOnly } = require('../middlewares/authMiddleware');
 
-// Public Backend Proxy for GitHub README fetching (Uses native Node fetch API)
+// Public Backend Proxy for GitHub README fetching
 router.get('/readme-proxy', async (req, res) => {
   try {
     const { repoUrl } = req.query;

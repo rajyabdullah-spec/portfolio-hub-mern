@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, KeyRound, AlertCircle, Eye, EyeOff, CheckCircle2, Lightbulb, Lock } from 'lucide-react';
+import { Mail, KeyRound, Eye, EyeOff, CheckCircle2, Lightbulb, Lock } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 
 const LoginPage = () => {
@@ -9,7 +10,6 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isCapsLockOn, setIsCapsLockOn] = useState(false);
@@ -59,18 +59,19 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
 
     try {
       await login(email, password);
       setIsSuccess(true);
+      toast.success('Authenticated successfully! Redirecting...');
 
       setTimeout(() => {
         navigate('/admin');
       }, 1200);
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid credentials');
+      const errorMessage = err.response?.data?.message || 'Invalid credentials';
+      toast.error(errorMessage);
       setLoading(false);
     }
   };
@@ -218,17 +219,6 @@ const LoginPage = () => {
                   <p className="text-xs text-slate-400 mt-1">Authorized Portfolio Admin Access</p>
                 </div>
 
-                {error && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="p-3 mb-4 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center gap-2 text-rose-400 text-xs"
-                  >
-                    <AlertCircle className="w-4 h-4 shrink-0" />
-                    <span>{error}</span>
-                  </motion.div>
-                )}
-
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
                     <label className="block text-xs font-medium text-slate-400 mb-1">Admin Email</label>
@@ -287,7 +277,7 @@ const LoginPage = () => {
                   <button
                     type="submit"
                     disabled={loading || isSuccess}
-                    className={`w-full py-3 mt-2 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg ${
+                    className={`w-full py-3 mt-2 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg cursor-pointer hover:-translate-y-0.5 active:translate-y-0 ${
                       isSuccess
                         ? 'bg-emerald-500 text-slate-950 shadow-emerald-500/30'
                         : 'bg-emerald-600 hover:bg-emerald-500 text-white disabled:bg-slate-800 disabled:text-slate-500'

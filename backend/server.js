@@ -22,6 +22,9 @@ connectDB().then(() => {
 
 const app = express();
 
+// Trust reverse proxy for deployment platforms (Render, Vercel, Heroku, etc.)
+app.set('trust proxy', 1);
+
 // Security Middlewares
 app.use(
   helmet({
@@ -33,6 +36,8 @@ app.use(
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
   message: {
     success: false,
     message: 'Too many requests from this IP, please try again after 15 minutes',

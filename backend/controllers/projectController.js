@@ -41,7 +41,7 @@ const getProjectById = async (req, res) => {
 // @access  Private/Admin
 const createProject = async (req, res) => {
   try {
-    const { title, description, techStack, liveUrl, githubUrl, imageUrl, featured } = req.body;
+    const { title, description, techStack, liveUrl, githubUrl, subPathUrl, imageUrl, featured } = req.body;
 
     const project = await Project.create({
       title,
@@ -49,6 +49,7 @@ const createProject = async (req, res) => {
       techStack,
       liveUrl,
       githubUrl,
+      subPathUrl,
       imageUrl,
       featured,
     });
@@ -73,10 +74,25 @@ const updateProject = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Project not found' });
     }
 
-    project = await Project.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    const { title, description, techStack, liveUrl, githubUrl, subPathUrl, imageUrl, featured } = req.body;
+
+    project = await Project.findByIdAndUpdate(
+      req.params.id,
+      {
+        title,
+        description,
+        techStack,
+        liveUrl,
+        githubUrl,
+        subPathUrl,
+        imageUrl,
+        featured,
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
     res.status(200).json({
       success: true,

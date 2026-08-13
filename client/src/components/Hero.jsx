@@ -3,8 +3,18 @@ import { motion } from 'framer-motion';
 import { ArrowRight, Terminal, Sparkles, FileText, CheckCircle2 } from 'lucide-react';
 
 const Hero = () => {
+  const handleScrollToSection = (e, targetId) => {
+    e.preventDefault();
+    const element = document.querySelector(targetId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      window.location.href = `/${targetId}`;
+    }
+  };
+
   return (
-    <section className="relative py-20 sm:py-28 overflow-hidden">
+    <section className="relative py-20 sm:py-28 overflow-hidden select-none">
       {/* Background Ambient Glow Effects */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-emerald-500/10 blur-[120px] rounded-full pointer-events-none -z-10" />
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[300px] h-[200px] bg-sky-500/10 blur-[90px] rounded-full pointer-events-none -z-10" />
@@ -64,7 +74,8 @@ const Hero = () => {
         >
           <a
             href="#projects"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-xs shadow-lg shadow-emerald-500/20 transition-all border border-emerald-400/30 cursor-pointer"
+            onClick={(e) => handleScrollToSection(e, '#projects')}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-xs shadow-lg shadow-emerald-500/20 transition-all border border-emerald-400/30 cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
           >
             <span>Explore Projects</span>
             <ArrowRight className="w-4 h-4" />
@@ -72,17 +83,18 @@ const Hero = () => {
 
           <a
             href="#contact"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 hover:border-slate-700 font-semibold text-xs transition-all cursor-pointer shadow-md"
+            onClick={(e) => handleScrollToSection(e, '#contact')}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 hover:border-slate-700 font-semibold text-xs transition-all cursor-pointer shadow-md hover:-translate-y-0.5 active:translate-y-0"
           >
             <Terminal className="w-4 h-4 text-emerald-400" />
             <span>Get in Touch</span>
           </a>
 
           <a
-          href="/resume.pdf"
+            href="/resume.pdf"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-slate-900/60 hover:bg-slate-800/80 text-slate-400 hover:text-slate-200 border border-slate-800/80 font-mono text-xs transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-slate-900/60 hover:bg-slate-800/80 text-slate-400 hover:text-slate-200 border border-slate-800/80 font-mono text-xs transition-all cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
           >
             <FileText className="w-4 h-4 text-slate-400" />
             <span>CV / Resume</span>

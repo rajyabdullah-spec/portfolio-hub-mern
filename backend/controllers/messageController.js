@@ -7,6 +7,10 @@ const sendMessage = async (req, res) => {
   try {
     const { senderName, email, subject, message } = req.body;
 
+    if (!senderName || !email || !message) {
+      return res.status(400).json({ success: false, message: 'Please provide name, email, and message content' });
+    }
+
     const newMessage = await Message.create({
       senderName,
       email,

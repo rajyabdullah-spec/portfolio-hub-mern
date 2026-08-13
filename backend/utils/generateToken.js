@@ -5,9 +5,11 @@ const generateToken = (res, userId) => {
     expiresIn: process.env.JWT_EXPIRE || '30d',
   });
 
+  const cookieExpireDays = Number(process.env.JWT_COOKIE_EXPIRE) || 1;
+
   const options = {
     expires: new Date(
-      Date.now() + (process.env.JWT_COOKIE_EXPIRE || 30) * 24 * 60 * 60 * 1000
+      Date.now() + cookieExpireDays * 24 * 60 * 60 * 1000
     ),
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',

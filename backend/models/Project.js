@@ -10,6 +10,7 @@ const projectSchema = new mongoose.Schema(
     description: {
       type: String,
       required: [true, 'Please add a description'],
+      trim: true,
     },
     techStack: {
       type: [String],
@@ -18,18 +19,22 @@ const projectSchema = new mongoose.Schema(
     liveUrl: {
       type: String,
       default: '',
+      trim: true,
     },
     githubUrl: {
       type: String,
       default: '',
+      trim: true,
     },
     imageUrl: {
       type: String,
       default: '',
+      trim: true,
     },
     subPathUrl: {
       type: String,
       default: '',
+      trim: true,
     },
     featured: {
       type: Boolean,

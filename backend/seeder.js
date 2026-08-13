@@ -112,8 +112,8 @@ const importData = async () => {
   try {
     await connectDB();
     
-    await Project.deleteMany();
     console.log('Clearing old projects...');
+    await Project.deleteMany();
 
     const formattedProjects = [
       ...htmlCssProjects.map(p => ({
@@ -139,7 +139,7 @@ const importData = async () => {
         description: p.desc,
         techStack: p.techStack || [],
         githubUrl: p.github || '',
-        liveUrl: p.path || '',
+        liveUrl: '',
         imageUrl: '',
         subPathUrl: p.path || ''
       })),
@@ -174,7 +174,9 @@ const importData = async () => {
 
     await Project.insertMany(formattedProjects);
     console.log(`Successfully injected ${formattedProjects.length} structured projects!`);
-    process.exit();
+    
+    await mongoose.connection.close();
+    process.exit(0);
   } catch (error) {
     console.error(`Import Error: ${error}`);
     process.exit(1);

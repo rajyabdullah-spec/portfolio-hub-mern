@@ -5,14 +5,18 @@ const messageSchema = new mongoose.Schema(
     senderName: {
       type: String,
       required: [true, 'Please add your name'],
+      trim: true,
     },
     email: {
       type: String,
       required: [true, 'Please add your email'],
+      trim: true,
+      lowercase: true,
     },
     subject: {
       type: String,
       default: 'No Subject',
+      trim: true,
     },
     message: {
       type: String,
