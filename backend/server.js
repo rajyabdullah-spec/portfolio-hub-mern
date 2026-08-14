@@ -4,6 +4,7 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const mongoSanitize = require('express-mongo-sanitize');
 
 const connectDB = require('./config/db');
 const seedAdminUser = require('./utils/seeder');
@@ -49,7 +50,9 @@ app.use('/api', limiter);
 const allowedOrigins = [
   'http://localhost:5173',
   'http://127.0.0.1:5173',
-  process.env.CLIENT_URL, // e.g. https://your-portfolio.vercel.app
+  'https://raji-dev.nl',
+  'https://www.raji-dev.nl',
+  process.env.CLIENT_URL,
 ].filter(Boolean);
 
 app.use(
@@ -70,6 +73,10 @@ app.use(
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Data Sanitization against NoSQL Injection Attacks
+app.use(mongoSanitize());
+
 app.use(cookieParser());
 
 // System Health Check Endpoint

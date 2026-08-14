@@ -2,6 +2,11 @@
 
 Portfolio Hub is a modern, production-ready Full-Stack MERN (MongoDB, Express.js, React.js, Node.js) web application engineered to showcase software development projects, accept direct client inquiries, and manage dynamic content via a secure, role-based Admin Panel.
 
+🌐 **Live Application:** https://raji-dev.nl
+🔗 **API Health Check:** https://portfolio-backend-api-h2pz.onrender.com/api/health
+
+---
+
 ## Key Features
 
 ### Public Client Features
@@ -27,38 +32,46 @@ Portfolio Hub is a modern, production-ready Full-Stack MERN (MongoDB, Express.js
   * **Delete:** Remove outdated projects with custom confirmation modal guards.
   * **Inbox Management:** Read, mark as read, reply via direct mail link, and manage client contact inquiries.
 
+---
+
 ## Tech Stack & Architecture
 
 - **Frontend:** React 18, Vite, React Router DOM v6, Framer Motion, Axios, Tailwind CSS v4, Lucide Icons
 - **Backend:** Node.js, Express.js, RESTful API Architecture
-- **Database:** MongoDB & Mongoose ORM
-- **Authentication:** JSON Web Tokens (JWT), Bcrypt.js, HTTP-Only Cookies
+- **Database:** MongoDB Atlas & Mongoose ORM
+- **Security:** JSON Web Tokens (JWT), Bcrypt.js, HTTP-Only Cookies, Helmet.js, Express Rate Limit, Strict CORS
+- **Deployment & Hosting:**
+  * **Frontend:** Vercel (Production Build with Custom SSL Domain: `raji-dev.nl`)
+  * **Backend:** Render (Frankfurt Region) with `trust proxy` configuration
+  * **Uptime Monitoring:** Integrated ping health checks to eliminate cold starts
 - **Version Control:** Git, GitHub (Feature Branching Workflow)
+
+---
 
 ## Repository Structure
 
-```text
-portfolio-hub-mern/
-├── backend/                  # Express API Server & Database Logic
-│   ├── config/               # Database Connection Configuration
-│   ├── controllers/          # Request Handlers & Business Logic (authController, projectController, etc.)
-│   ├── middlewares/          # JWT Protect Guard & Error Handling
-│   ├── models/               # Mongoose Schemas (User, Project, Message)
-│   ├── routes/               # API Route Endpoints
-│   ├── utils/                # Seeder Scripts (seedAdminUser, importData)
-│   └── server.js             # Application Entry Point
-│
-├── client/                   # Vite React Frontend
-│   ├── src/
-│   │   ├── api/              # Axios Centralized Client (withCredentials: true)
-│   │   ├── components/       # Reusable UI Components (Hero, PortfolioGrid, ProjectCard3D, AboutAndSkills, ContactForm, Navbar, Footer)
-│   │   ├── context/          # Auth Context Provider
-│   │   ├── pages/            # View Pages (LoginPage, AdminDashboard)
-│   │   └── App.jsx           # Main Router Setup
-│   └── package.json
-│
-└── README.md                 # Documentation
-```
+    portfolio-hub-mern/
+    ├── backend/                  # Express API Server & Database Logic
+    │   ├── config/               # Database Connection Configuration
+    │   ├── controllers/          # Request Handlers & Business Logic (authController, projectController, etc.)
+    │   ├── middlewares/          # JWT Protect Guard & Error Handling
+    │   ├── models/               # Mongoose Schemas (User, Project, Message)
+    │   ├── routes/               # API Route Endpoints
+    │   ├── utils/                # Seeder Scripts (seedAdminUser, importData)
+    │   └── server.js             # Application Entry Point
+    │
+    ├── client/                   # Vite React Frontend
+    │   ├── src/
+    │   │   ├── api/              # Axios Centralized Client (withCredentials: true)
+    │   │   ├── components/       # Reusable UI Components (Hero, PortfolioGrid, ProjectCard3D, AboutAndSkills, ContactForm, Navbar, Footer)
+    │   │   ├── context/          # Auth Context Provider
+    │   │   ├── pages/            # View Pages (LoginPage, AdminDashboard)
+    │   │   └── App.jsx           # Main Router Setup
+    │   └── package.json
+    │
+    └── README.md                 # Documentation
+
+---
 
 ## Local Development Setup Guide
 
@@ -67,62 +80,56 @@ portfolio-hub-mern/
 - MongoDB (Local instance or MongoDB Atlas cluster)
 
 ### 1. Clone Repository
-```bash
-git clone https://github.com/rajyabdullah-spec/portfolio-hub-mern.git
-cd portfolio-hub-mern
-```
+    git clone https://github.com/rajyabdullah-spec/portfolio-hub-mern.git
+    cd portfolio-hub-mern
 
 ### 2. Backend Configuration
 Navigate to backend directory and install dependencies:
-```bash
-cd backend
-npm install
-```
+    
+    cd backend
+    npm install
 
 Create a `.env` file inside the backend folder:
-```env
-PORT=5000
-NODE_ENV=development
-MONGO_URI=mongodb://127.0.0.1:27017/portfolio_hub
-JWT_SECRET=super_secret_jwt_key_2026_capstone
-ADMIN_EMAIL=admin@domain.com
-ADMIN_PASSWORD=your_secure_password
-JWT_EXPIRE=24h
-JWT_COOKIE_EXPIRE=1
-CLIENT_URL=http://localhost:5173
-```
+    
+    PORT=5000
+    NODE_ENV=development
+    MONGO_URI=mongodb://127.0.0.1:27017/portfolio_hub
+    JWT_SECRET=super_secret_jwt_key_2026_capstone
+    ADMIN_EMAIL=admin@domain.com
+    ADMIN_PASSWORD=your_secure_password
+    JWT_EXPIRE=24h
+    JWT_COOKIE_EXPIRE=1
+    CLIENT_URL=http://localhost:5173
 
 Seed initial Admin user and default projects (Optional):
-```bash
-npm run seed
-```
+    
+    npm run seed
 
 Run Express Backend Server:
-```bash
-npm run dev
-```
+    
+    npm run dev
 
 ### 3. Frontend Configuration
 Open a new terminal, navigate to the client directory and install dependencies:
-```bash
-cd client
-npm install
-```
+    
+    cd client
+    npm install
 
-Create a .env file inside the client folder (Optional for custom backend URL):
-```bash
-VITE_API_BASE_URL=http://localhost:5000/api
-```
+Create a `.env` file inside the client folder:
+    
+    VITE_API_URL=http://localhost:5000/api
 
 Run Vite React Frontend:
-```bash
-npm run dev
-```
+    
+    npm run dev
 
 The application will be accessible at `http://localhost:5173`.
 
+---
+
 ## API Route Specifications
 
+- `GET /api/health` — Public — System health check & uptime monitor endpoint
 - `POST /api/auth/login` — Public — Authenticates admin & sets HTTP-Only Cookie
 - `GET /api/auth/me` — Private — Verifies current active user session
 - `POST /api/auth/logout` — Private — Clears authentication cookie
@@ -135,5 +142,8 @@ The application will be accessible at `http://localhost:5173`.
 - `PUT /api/messages/:id/read` — Private (Admin) — Marks a contact message as read
 - `DELETE /api/messages/:id` — Private (Admin) — Deletes a contact message by ID
 
+---
+
 ## Developed By
-Raji Al-Abdullah — Full-Stack Software Developer
+**Raji Al-Abdullah** — Full-Stack Software Developer  
+🌐 Website: https://raji-dev.nl
