@@ -4,7 +4,6 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const mongoSanitize = require('express-mongo-sanitize');
 
 const connectDB = require('./config/db');
 const seedAdminUser = require('./utils/seeder');
@@ -74,8 +73,6 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Data Sanitization against NoSQL Injection Attacks
-app.use(mongoSanitize());
 
 app.use(cookieParser());
 

@@ -1,5 +1,1 @@
-{
-  "dependencies": {
-    "express-mongo-sanitize": "^2.2.0"
-  }
-}
+{}
