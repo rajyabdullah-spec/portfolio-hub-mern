@@ -1,28 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Code2, Copy, Check, Terminal, Server, Database } from 'lucide-react';
+import { User, Code2, Copy, Check, Terminal, Server, Database, Sparkles, Layers } from 'lucide-react';
 import toast from 'react-hot-toast';
-import API from '../api/axios'; // ✅ Centralized API client
+import API from '../api/axios';
 
 const SKILLS_TEMPLATE = [
-  { name: 'React', keywords: ['React', 'JSX', 'Hooks', 'Context API'], count: 0, color: '#61DAFB', bg: 'hover:bg-[#61DAFB]/10 hover:border-[#61DAFB]' },
-  { name: 'Node.js', keywords: ['Node.js', 'Node'], count: 0, color: '#339933', bg: 'hover:bg-[#339933]/10 hover:border-[#339933]' },
-  { name: 'Express.js', keywords: ['Express.js', 'Express', 'MVC', 'REST API', 'REST'], count: 0, color: '#FFFFFF', bg: 'hover:bg-white/10 hover:border-white' },
-  { name: 'MongoDB & Mongoose', keywords: ['MongoDB', 'Mongoose', 'Database'], count: 0, color: '#47A248', bg: 'hover:bg-[#47A248]/10 hover:border-[#47A248]' },
-  { name: 'JavaScript (ES6+)', keywords: ['JavaScript', 'JS', 'ES6', 'DOM', 'Arrow Functions'], count: 0, color: '#F7DF1E', bg: 'hover:bg-[#F7DF1E]/10 hover:border-[#F7DF1E]' },
-  { name: 'JWT & Security', keywords: ['JWT', 'JWT Auth', 'Bcrypt', 'HTTP-Only Cookies', 'Auth'], count: 0, color: '#EC4899', bg: 'hover:bg-pink-500/10 hover:border-pink-500' },
-  { name: 'AJAX & Fetch API', keywords: ['AJAX', 'Fetch API', 'XHR', 'OMDb API', 'FakeStore API', 'OpenWeather API'], count: 0, color: '#06B6D4', bg: 'hover:bg-cyan-500/10 hover:border-cyan-500' },
-  { name: 'Algorithms & Logic', keywords: ['Algorithms', 'Loops', 'Logic', 'Recursion', 'Bubble Sort'], count: 0, color: '#E34F26', bg: 'hover:bg-[#E34F26]/10 hover:border-[#E34F26]' },
-  { name: 'OOP & Async', keywords: ['OOP', 'Promises', 'Async', 'Async/Await', 'ES6 Classes'], count: 0, color: '#F48024', bg: 'hover:bg-[#F48024]/10 hover:border-[#F48024]' },
-  { name: 'Tailwind & UI', keywords: ['Tailwind', 'Bootstrap', 'Bootstrap 5', 'CSS3'], count: 0, color: '#38BDF8', bg: 'hover:bg-sky-500/10 hover:border-sky-500' },
-  { name: 'HTML5 & Semantics', keywords: ['HTML5', 'Semantics', 'HTML Forms', 'HTML'], count: 0, color: '#E44D26', bg: 'hover:bg-orange-500/10 hover:border-orange-500' },
-  { name: 'Git & GitHub', keywords: ['Git', 'GitHub', 'Version Control'], count: 0, color: '#F05032', bg: 'hover:bg-[#F05032]/10 hover:border-[#F05032]' }
+  { name: 'React', category: 'Frontend', keywords: ['React', 'JSX', 'Hooks', 'Context API'], count: 0, color: '#61DAFB', bg: 'hover:bg-[#61DAFB]/10 hover:border-[#61DAFB]/50' },
+  { name: 'Node.js', category: 'Backend', keywords: ['Node.js', 'Node'], count: 0, color: '#339933', bg: 'hover:bg-[#339933]/10 hover:border-[#339933]/50' },
+  { name: 'Express.js', category: 'Backend', keywords: ['Express.js', 'Express', 'MVC', 'REST API', 'REST'], count: 0, color: '#FFFFFF', bg: 'hover:bg-white/10 hover:border-white/50' },
+  { name: 'MongoDB & Mongoose', category: 'Database', keywords: ['MongoDB', 'Mongoose', 'Database'], count: 0, color: '#47A248', bg: 'hover:bg-[#47A248]/10 hover:border-[#47A248]/50' },
+  { name: 'JavaScript (ES6+)', category: 'Core', keywords: ['JavaScript', 'JS', 'ES6', 'DOM', 'Arrow Functions'], count: 0, color: '#F7DF1E', bg: 'hover:bg-[#F7DF1E]/10 hover:border-[#F7DF1E]/50' },
+  { name: 'JWT & Security', category: 'Backend', keywords: ['JWT', 'JWT Auth', 'Bcrypt', 'HTTP-Only Cookies', 'Auth'], count: 0, color: '#EC4899', bg: 'hover:bg-pink-500/10 hover:border-pink-500/50' },
+  { name: 'AJAX & APIs', category: 'Frontend', keywords: ['AJAX', 'Fetch API', 'XHR', 'OMDb API', 'FakeStore API', 'OpenWeather API'], count: 0, color: '#06B6D4', bg: 'hover:bg-cyan-500/10 hover:border-cyan-500/50' },
+  { name: 'Algorithms & Logic', category: 'Core', keywords: ['Algorithms', 'Loops', 'Logic', 'Recursion', 'Bubble Sort'], count: 0, color: '#E34F26', bg: 'hover:bg-[#E34F26]/10 hover:border-[#E34F26]/50' },
+  { name: 'OOP & Async JS', category: 'Core', keywords: ['OOP', 'Promises', 'Async', 'Async/Await', 'ES6 Classes'], count: 0, color: '#F48024', bg: 'hover:bg-[#F48024]/10 hover:border-[#F48024]/50' },
+  { name: 'Tailwind & CSS3', category: 'Frontend', keywords: ['Tailwind', 'Bootstrap', 'Bootstrap 5', 'CSS3'], count: 0, color: '#38BDF8', bg: 'hover:bg-sky-500/10 hover:border-sky-500/50' },
+  { name: 'HTML5 & Semantics', category: 'Frontend', keywords: ['HTML5', 'Semantics', 'HTML Forms', 'HTML'], count: 0, color: '#E44D26', bg: 'hover:bg-orange-500/10 hover:border-orange-500/50' },
+  { name: 'Git & GitHub', category: 'Tools', keywords: ['Git', 'GitHub', 'Version Control'], count: 0, color: '#F05032', bg: 'hover:bg-[#F05032]/10 hover:border-[#F05032]/50' }
 ];
 
 const HIGHLIGHT_CARDS = [
-  { icon: Terminal, title: 'Frontend Mastery', desc: 'React 18, Single Page Apps, Context API, Router DOM v6' },
-  { icon: Server, title: 'Backend Engine', desc: 'Node.js, Express REST APIs, JWT Auth, MVC Architecture' },
-  { icon: Database, title: 'Data Management', desc: 'MongoDB Atlas, Mongoose Relational Schemas, Indexing' }
+  { icon: Terminal, title: 'Frontend Mastery', desc: 'React 18, Single Page Applications, Context API, Modern Hooks, and Responsive Tailwind Layouts.' },
+  { icon: Server, title: 'Backend Engine', desc: 'Node.js, Express RESTful APIs, Stateful JWT Auth, Security Middleware, and Clean Architecture.' },
+  { icon: Database, title: 'Data Management', desc: 'MongoDB Atlas, Mongoose Relational Schemas, Indexing, and Efficient CRUD Operations.' }
 ];
 
 const AboutAndSkills = () => {
@@ -72,29 +72,38 @@ const AboutAndSkills = () => {
   };
 
   return (
-    <section id="about" className="py-16 space-y-16 border-t border-slate-800/60 select-none">
+    <motion.section 
+      id="about" 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.5 }}
+      className="py-12 md:py-16 space-y-16 select-none"
+    >
       
       {/* About Section */}
-      <div className="max-w-4xl mx-auto space-y-8">
+      <div className="max-w-4xl mx-auto space-y-8 px-4">
         <div className="text-center space-y-3">
-          <div className="inline-flex items-center gap-2 text-emerald-400 font-semibold text-xs tracking-wider uppercase bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+          <div className="inline-flex items-center gap-2 text-emerald-400 font-semibold text-xs tracking-wider uppercase bg-emerald-500/10 px-3.5 py-1.5 rounded-full border border-emerald-500/20 shadow-sm">
             <User className="w-3.5 h-3.5" />
             <span>ABOUT ME</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Full-Stack Software Engineer</h2>
-          <p className="text-slate-400 text-sm leading-relaxed max-w-2xl mx-auto">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+            Full-Stack <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-sky-300">Software Engineer</span>
+          </h2>
+          <p className="text-slate-400 text-xs sm:text-sm leading-relaxed max-w-2xl mx-auto">
             Passionately engineering scalable, secure, and intuitive web applications using the MERN stack.
             Focused on clean architecture, modern UI design, and robust backend services.
           </p>
 
           {/* Copy Email Button */}
-          <div className="pt-2 flex justify-center">
+          <div className="pt-3 flex justify-center">
             <button
               onClick={handleCopy}
               className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-mono font-semibold transition-all duration-300 border cursor-pointer hover:-translate-y-0.5 active:translate-y-0 ${
                 copied
                   ? 'bg-emerald-500/10 border-emerald-500 text-emerald-400 shadow-lg shadow-emerald-500/20'
-                  : 'bg-slate-900 border-slate-800 text-slate-300 hover:border-emerald-500/50 hover:text-white shadow-md'
+                  : 'bg-slate-900/90 border-slate-800 text-slate-300 hover:border-emerald-500/50 hover:text-white shadow-md'
               }`}
             >
               {copied ? (
@@ -113,20 +122,21 @@ const AboutAndSkills = () => {
         </div>
 
         {/* Feature Highlight Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-4">
           {HIGHLIGHT_CARDS.map((card, idx) => {
             const IconComponent = card.icon;
             return (
               <motion.div
                 key={idx}
-                whileHover={{ y: -4 }}
-                className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-emerald-500/30 transition-all shadow-xl flex flex-col justify-between"
+                whileHover={{ y: -5 }}
+                transition={{ type: "spring", stiffness: 350, damping: 20 }}
+                className="p-6 rounded-3xl bg-slate-900/80 border border-slate-800/80 hover:border-emerald-500/40 transition-all shadow-xl flex flex-col justify-between group backdrop-blur-md"
               >
-                <div className="space-y-2">
-                  <div className="p-2.5 rounded-xl bg-slate-800/80 w-fit text-emerald-400 border border-slate-700/50">
+                <div className="space-y-3">
+                  <div className="p-3 rounded-2xl bg-slate-800/80 w-fit text-emerald-400 border border-slate-700/50 group-hover:scale-110 group-hover:bg-emerald-500/10 transition-all">
                     <IconComponent className="w-5 h-5" />
                   </div>
-                  <h3 className="font-bold text-white text-sm">{card.title}</h3>
+                  <h3 className="font-bold text-white text-base group-hover:text-emerald-400 transition-colors">{card.title}</h3>
                   <p className="text-xs text-slate-400 leading-relaxed">{card.desc}</p>
                 </div>
               </motion.div>
@@ -136,15 +146,15 @@ const AboutAndSkills = () => {
       </div>
 
       {/* Dynamic Skills Section */}
-      <div id="skills" className="space-y-6 pt-6 max-w-4xl mx-auto">
-        <div className="text-center space-y-1">
-          <div className="inline-flex items-center gap-2 text-emerald-400 font-semibold text-xs tracking-wider uppercase bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+      <div id="skills" className="space-y-8 pt-6 max-w-4xl mx-auto px-4">
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center gap-2 text-emerald-400 font-semibold text-xs tracking-wider uppercase bg-emerald-500/10 px-3.5 py-1.5 rounded-full border border-emerald-500/20 shadow-sm">
             <Code2 className="w-3.5 h-3.5" />
             <span>SKILLS & TECH STACK</span>
           </div>
-          <h3 className="text-2xl font-bold text-white">Technologies I Work With</h3>
-          <p className="text-xs text-slate-400">
-            Database-synced project counters based on core tech stack
+          <h3 className="text-2xl sm:text-3xl font-bold text-white">Technologies I Work With</h3>
+          <p className="text-xs text-slate-400 max-w-lg mx-auto">
+            Dynamic database-synced project counters mapping core engineering milestones.
           </p>
         </div>
 
@@ -159,20 +169,27 @@ const AboutAndSkills = () => {
             <motion.div
               key={idx}
               whileHover={{ scale: 1.05 }}
-              className={`px-4 py-2.5 rounded-xl border border-slate-800/80 bg-slate-900/90 text-slate-300 font-medium text-xs transition-colors duration-200 shadow-md flex items-center gap-2 ${skill.bg}`}
+              whileTap={{ scale: 0.98 }}
+              className={`px-4 py-2.5 rounded-2xl border border-slate-800/80 bg-slate-900/90 text-slate-300 font-medium text-xs transition-all duration-200 shadow-lg flex items-center gap-2.5 backdrop-blur-sm cursor-default ${skill.bg}`}
             >
               <span style={{ color: skill.color }} className="font-bold text-sm">●</span>
-              <span>{skill.name}</span>
+              <span className="font-semibold">{skill.name}</span>
               {skill.count > 0 && (
-                <span className="ml-1 text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-slate-800 text-slate-400 border border-slate-700/50">
-                  {skill.count}
+                <span className="ml-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700/60 shadow-inner">
+                  {skill.count} {skill.count === 1 ? 'project' : 'projects'}
                 </span>
               )}
             </motion.div>
           ))}
         </motion.div>
+
+        {/* Live Sync Footer Note */}
+        <div className="flex items-center justify-center gap-2 text-[11px] font-mono text-slate-500 pt-4">
+          <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+          <span>Real-time aggregation synced with backend database</span>
+        </div>
       </div>
-    </section>
+    </motion.section>
   );
 };
 

@@ -7,11 +7,10 @@ Portfolio Hub is a modern, production-ready Full-Stack MERN (MongoDB, Express.js
 ### Public Client Features
 - **Hero Section & Bio:** Highlighting professional skills, full-stack overview, and interactive email clipboard button with instant feedback.
 - **3D Perspective Project Cards:** Interactive cards featuring cursor-following glow effects, dynamic 3D tilt responsiveness, and intelligent action buttons adapting to project types (Live Apps, Interactive GIFs, or pure Code Modules).
-- **Strict Category Filtering:** Advanced exact-match filtering algorithm to organize 70+ chronological milestones across specialized tech stacks without bleed-over.
-- **Interactive Skills Badges:** Hoverable tech stack badges displaying dynamic project count tooltips.
-- **Modal Contact Form:** Sleek, non-intrusive Call-To-Action banner that opens an animated contact modal with backdrop blur for direct message submission.
-- **Multi-Page Routing System:** Clean page navigation via React Router v7 (`/`, `/about`, `/portfolio`, `/contact`) with active nav indicators.
-- **Dedicated Portfolio Showcase:** Dynamic Exact-Match filtering algorithm to organize 70+ chronological milestones across specialized tech stacks without bleed-over.
+- **Dedicated Portfolio Showcase:** Advanced exact-match category filtering and real-time keyword search engine organizing 76 chronological milestones across specialized tech stacks without bleed-over.
+- **Interactive Skills Badges:** Real-time database-synced skill badges displaying dynamic project counters and category highlights.
+- **Interactive Contact Experience:** Dedicated contact page featuring direct messaging, contact info cards, ambient backdrop glows, and a 3D flying paper plane success animation.
+- **Multi-Page Routing System:** Clean page navigation via React Router (`/`, `/about`, `/portfolio`, `/contact`) with active nav indicators.
 - **Modern UI & Responsive Design:** Built using React 18, Framer Motion, Tailwind CSS v4, and Lucide React icons.
 
 ### Admin Portal & Security

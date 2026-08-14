@@ -32,8 +32,8 @@ const ProjectCard3D = ({ project }) => {
     const centerX = card.width / 2;
     const centerY = card.height / 2;
 
-    const rotateXVal = ((y - centerY) / centerY) * -8;
-    const rotateYVal = ((x - centerX) / centerX) * 8;
+    const rotateXVal = ((y - centerY) / centerY) * -7;
+    const rotateYVal = ((x - centerX) / centerX) * 7;
 
     setRotateX(rotateXVal);
     setRotateY(rotateYVal);
@@ -74,29 +74,30 @@ const ProjectCard3D = ({ project }) => {
 
   return (
     <motion.div
-      style={{ perspective: 1000 }}
+      style={{ perspective: 1000, transformStyle: 'preserve-3d' }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       animate={{ rotateX, rotateY }}
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-      className="relative rounded-2xl bg-slate-900/90 border border-slate-800/80 p-6 group hover:border-emerald-500/50 transition-colors shadow-xl overflow-hidden flex flex-col justify-between min-h-[230px] select-none"
+      className="relative rounded-3xl bg-slate-900/90 border border-slate-800/80 p-6 group hover:border-emerald-500/50 transition-all duration-300 shadow-xl overflow-hidden flex flex-col justify-between min-h-[240px] select-none backdrop-blur-sm"
     >
+      {/* Radial Mouse Follow Glow */}
       <div
-        className="pointer-events-none absolute -inset-px opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"
+        className="pointer-events-none absolute -inset-px opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl"
         style={{
-          background: `radial-gradient(400px circle at ${glowPos.x}% ${glowPos.y}%, rgba(16, 185, 129, 0.12), transparent 80%)`,
+          background: `radial-gradient(400px circle at ${glowPos.x}% ${glowPos.y}%, rgba(16, 185, 129, 0.14), transparent 80%)`,
         }}
       />
 
-      <div>
+      <div className="relative z-10">
         {/* Header Bar with Badge & Share Button */}
         <div className="flex items-center justify-between gap-2 mb-3">
-          <span className={`text-[10px] font-mono px-2.5 py-0.5 rounded-full border ${
+          <span className={`text-[10px] font-mono px-2.5 py-0.5 rounded-full border shadow-sm ${
             hasLiveApp
               ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
               : hasGifDemo
               ? 'bg-indigo-500/10 border-indigo-500/30 text-indigo-400'
-              : 'bg-slate-800 border-slate-700 text-slate-400'
+              : 'bg-slate-800/80 border-slate-700/60 text-slate-400'
           }`}>
             {hasLiveApp ? '● Live Application' : hasGifDemo ? '🎬 Interactive Demo' : '💻 Code Module'}
           </span>
@@ -104,7 +105,7 @@ const ProjectCard3D = ({ project }) => {
           {/* Share Action */}
           <button
             onClick={handleShare}
-            className="p-1.5 rounded-lg bg-slate-800/60 hover:bg-slate-700 text-slate-400 hover:text-emerald-400 border border-slate-700/50 transition-all cursor-pointer z-10 hover:-translate-y-0.5 active:translate-y-0"
+            className="p-1.5 rounded-xl bg-slate-800/60 hover:bg-slate-700 text-slate-400 hover:text-emerald-400 border border-slate-700/50 transition-all cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
             title="Share Project Link"
           >
             {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Share2 className="w-3.5 h-3.5" />}
@@ -112,7 +113,7 @@ const ProjectCard3D = ({ project }) => {
         </div>
 
         {/* Title & Description */}
-        <h3 className="text-xl font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors">
+        <h3 className="text-xl font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors line-clamp-1">
           {project.title}
         </h3>
         <p className="text-xs text-slate-400 mb-5 line-clamp-3 leading-relaxed">
@@ -124,7 +125,7 @@ const ProjectCard3D = ({ project }) => {
           {(project.techStack || []).map((tech, idx) => (
             <span
               key={idx}
-              className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-slate-800/90 text-slate-300 border border-slate-700/50"
+              className="text-[10px] font-mono px-2 py-0.5 rounded-lg bg-slate-800/90 text-slate-300 border border-slate-700/50 group-hover:border-slate-600/60 transition-colors"
             >
               {tech}
             </span>
@@ -133,7 +134,7 @@ const ProjectCard3D = ({ project }) => {
       </div>
 
       {/* Action Links Bar */}
-      <div className="flex items-center justify-between gap-2 pt-4 border-t border-slate-800/80 text-xs z-10">
+      <div className="flex items-center justify-between gap-2 pt-4 border-t border-slate-800/80 text-xs relative z-10">
         
         {/* Primary Action Button */}
         {hasLiveApp ? (
@@ -168,14 +169,14 @@ const ProjectCard3D = ({ project }) => {
           </a>
         )}
 
-        {/* Secondary GitHub Actions */}
+        {/* Secondary GitHub Actions (Original Layout Restored) */}
         <div className="flex items-center gap-1.5">
           {directFolderUrl && (
             <a
               href={directFolderUrl}
               target="_blank"
               rel="noreferrer"
-              className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 transition-all hover:-translate-y-0.5 active:translate-y-0"
+              className="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 transition-all hover:-translate-y-0.5 active:translate-y-0"
               title="View Direct Project Code Folder"
             >
               <Code2 className="w-4 h-4" />
@@ -186,7 +187,7 @@ const ProjectCard3D = ({ project }) => {
             href={mainRepoUrl}
             target="_blank"
             rel="noreferrer"
-            className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 transition-all hover:-translate-y-0.5 active:translate-y-0"
+            className="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 transition-all hover:-translate-y-0.5 active:translate-y-0"
             title="Open Repository Root"
           >
             <FolderGit2 className="w-4 h-4" />
