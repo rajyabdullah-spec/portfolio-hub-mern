@@ -23,6 +23,9 @@ const ContactForm = () => {
   };
 
   const handleMouseMove = (e) => {
+    // Disable 3D calculations on mobile to prevent performance lag during scroll
+    if (window.innerWidth < 768) return;
+
     const card = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - card.left;
     const y = e.clientY - card.top;
@@ -42,6 +45,7 @@ const ContactForm = () => {
   };
 
   const handleMouseLeave = () => {
+    if (window.innerWidth < 768) return;
     setRotateX(0);
     setRotateY(0);
   };
@@ -76,7 +80,7 @@ const ContactForm = () => {
       transition={{ duration: 0.5 }}
       className="relative py-12 md:py-16 select-none overflow-hidden"
     >
-      {/* Dynamic Animated Ambient Orbs */}
+      {/* Dynamic Animated Ambient Orbs - Hidden on Mobile to fix GPU rendering bugs */}
       <motion.div 
         animate={{
           scale: [1, 1.2, 1],
@@ -85,7 +89,7 @@ const ContactForm = () => {
           y: [0, -20, 0],
         }}
         transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute top-1/4 left-10 w-80 h-80 bg-emerald-500/20 blur-[120px] rounded-full pointer-events-none -z-10"
+        className="hidden md:block absolute top-1/4 left-10 w-80 h-80 bg-emerald-500/20 blur-[120px] rounded-full pointer-events-none -z-10"
       />
       <motion.div 
         animate={{
@@ -95,12 +99,12 @@ const ContactForm = () => {
           y: [0, 25, 0],
         }}
         transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute bottom-10 right-10 w-96 h-96 bg-teal-500/15 blur-[130px] rounded-full pointer-events-none -z-10"
+        className="hidden md:block absolute bottom-10 right-10 w-96 h-96 bg-teal-500/15 blur-[130px] rounded-full pointer-events-none -z-10"
       />
 
       {/* Header Section */}
       <div className="text-center max-w-xl mx-auto mb-12 space-y-2 relative z-10">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-semibold text-xs shadow-sm backdrop-blur-sm">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-semibold text-xs shadow-sm md:backdrop-blur-sm">
           <MessageSquareText className="w-4 h-4" />
           <span>LET'S CONNECT</span>
         </div>
@@ -116,7 +120,7 @@ const ContactForm = () => {
         
         {/* Left Column: Contact Info Cards */}
         <div className="lg:col-span-5 space-y-6">
-          <div className="p-6 rounded-3xl bg-slate-900/80 border border-slate-800/80 space-y-6 shadow-2xl backdrop-blur-md">
+          <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-6 shadow-2xl md:bg-slate-900/80 md:backdrop-blur-md">
             <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
               <h3 className="text-xl font-bold text-white">Contact Info</h3>
               <span className="flex items-center gap-1.5 text-[10px] font-mono px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
@@ -176,7 +180,7 @@ const ContactForm = () => {
             </div>
           </div>
 
-          <div className="p-5 rounded-3xl bg-slate-900/40 border border-slate-800/60 backdrop-blur-sm text-xs text-slate-400 leading-relaxed flex items-start gap-3 shadow-md">
+          <div className="p-5 rounded-3xl bg-slate-900 border border-slate-800 md:bg-slate-900/40 md:border-slate-800/60 md:backdrop-blur-sm text-xs text-slate-400 leading-relaxed flex items-start gap-3 shadow-md">
             <Sparkles className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
             <p>
               <strong className="text-slate-200 font-semibold block mb-0.5">Quick Delivery Guarantee</strong>
@@ -193,11 +197,11 @@ const ContactForm = () => {
             onMouseLeave={handleMouseLeave}
             animate={{ rotateX, rotateY }}
             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-            className="relative p-6 sm:p-8 rounded-3xl bg-slate-900/90 border border-slate-800 shadow-2xl overflow-hidden group hover:border-emerald-500/40 transition-colors backdrop-blur-md min-h-[440px] flex flex-col justify-center"
+            className="relative p-6 sm:p-8 rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl overflow-hidden group hover:border-emerald-500/40 transition-colors md:bg-slate-900/90 md:backdrop-blur-md min-h-[440px] flex flex-col justify-center"
           >
-            {/* Radial Mouse Follow Glow */}
+            {/* Radial Mouse Follow Glow - Hidden on mobile */}
             <div
-              className="pointer-events-none absolute -inset-px opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl"
+              className="hidden md:block pointer-events-none absolute -inset-px opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl"
               style={{
                 background: `radial-gradient(600px circle at ${glowPos.x}% ${glowPos.y}%, rgba(16, 185, 129, 0.12), transparent 80%)`,
               }}
