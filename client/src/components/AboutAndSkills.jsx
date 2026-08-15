@@ -1,35 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Code2, Copy, Check, Terminal, Server, Database, Sparkles, Layers } from 'lucide-react';
+import { User, Code2, Copy, Check, Terminal, Server, Database, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 import API from '../api/axios';
 
 const SKILLS_TEMPLATE = [
-  { name: 'React', category: 'Frontend', keywords: ['React', 'JSX', 'Hooks', 'Context API'], count: 0, color: '#61DAFB', bg: 'hover:bg-[#61DAFB]/10 hover:border-[#61DAFB]/50' },
+  { name: 'React 18', category: 'Frontend', keywords: ['React', 'JSX', 'Hooks', 'Context API'], count: 0, color: '#61DAFB', bg: 'hover:bg-[#61DAFB]/10 hover:border-[#61DAFB]/50' },
   { name: 'Node.js', category: 'Backend', keywords: ['Node.js', 'Node'], count: 0, color: '#339933', bg: 'hover:bg-[#339933]/10 hover:border-[#339933]/50' },
-  { name: 'Express.js', category: 'Backend', keywords: ['Express.js', 'Express', 'MVC', 'REST API', 'REST'], count: 0, color: '#FFFFFF', bg: 'hover:bg-white/10 hover:border-white/50' },
+  { name: 'Express.js & APIs', category: 'Backend', keywords: ['Express.js', 'Express', 'MVC', 'REST API', 'REST'], count: 0, color: '#FFFFFF', bg: 'hover:bg-white/10 hover:border-white/50' },
   { name: 'MongoDB & Mongoose', category: 'Database', keywords: ['MongoDB', 'Mongoose', 'Database'], count: 0, color: '#47A248', bg: 'hover:bg-[#47A248]/10 hover:border-[#47A248]/50' },
   { name: 'JavaScript (ES6+)', category: 'Core', keywords: ['JavaScript', 'JS', 'ES6', 'DOM', 'Arrow Functions'], count: 0, color: '#F7DF1E', bg: 'hover:bg-[#F7DF1E]/10 hover:border-[#F7DF1E]/50' },
-  { name: 'JWT & Security', category: 'Backend', keywords: ['JWT', 'JWT Auth', 'Bcrypt', 'HTTP-Only Cookies', 'Auth'], count: 0, color: '#EC4899', bg: 'hover:bg-pink-500/10 hover:border-pink-500/50' },
-  { name: 'AJAX & APIs', category: 'Frontend', keywords: ['AJAX', 'Fetch API', 'XHR', 'OMDb API', 'FakeStore API', 'OpenWeather API'], count: 0, color: '#06B6D4', bg: 'hover:bg-cyan-500/10 hover:border-cyan-500/50' },
+  { name: 'JWT & Auth Security', category: 'Backend', keywords: ['JWT', 'JWT Auth', 'Bcrypt', 'HTTP-Only Cookies', 'Auth'], count: 0, color: '#EC4899', bg: 'hover:bg-pink-500/10 hover:border-pink-500/50' },
+  { name: 'REST & External APIs', category: 'Frontend', keywords: ['AJAX', 'Fetch API', 'XHR', 'OMDb API', 'FakeStore API', 'OpenWeather API'], count: 0, color: '#06B6D4', bg: 'hover:bg-cyan-500/10 hover:border-cyan-500/50' },
   { name: 'Algorithms & Logic', category: 'Core', keywords: ['Algorithms', 'Loops', 'Logic', 'Recursion', 'Bubble Sort'], count: 0, color: '#E34F26', bg: 'hover:bg-[#E34F26]/10 hover:border-[#E34F26]/50' },
   { name: 'OOP & Async JS', category: 'Core', keywords: ['OOP', 'Promises', 'Async', 'Async/Await', 'ES6 Classes'], count: 0, color: '#F48024', bg: 'hover:bg-[#F48024]/10 hover:border-[#F48024]/50' },
-  { name: 'Tailwind & CSS3', category: 'Frontend', keywords: ['Tailwind', 'Bootstrap', 'Bootstrap 5', 'CSS3'], count: 0, color: '#38BDF8', bg: 'hover:bg-sky-500/10 hover:border-sky-500/50' },
-  { name: 'HTML5 & Semantics', category: 'Frontend', keywords: ['HTML5', 'Semantics', 'HTML Forms', 'HTML'], count: 0, color: '#E44D26', bg: 'hover:bg-orange-500/10 hover:border-orange-500/50' },
-  { name: 'Git & GitHub', category: 'Tools', keywords: ['Git', 'GitHub', 'Version Control'], count: 0, color: '#F05032', bg: 'hover:bg-[#F05032]/10 hover:border-[#F05032]/50' }
+  { name: 'Tailwind CSS v4', category: 'Frontend', keywords: ['Tailwind', 'Bootstrap', 'Bootstrap 5', 'CSS3'], count: 0, color: '#38BDF8', bg: 'hover:bg-sky-500/10 hover:border-sky-500/50' },
+  { name: 'Semantic HTML5', category: 'Frontend', keywords: ['HTML5', 'Semantics', 'HTML Forms', 'HTML'], count: 0, color: '#E44D26', bg: 'hover:bg-orange-500/10 hover:border-orange-500/50' },
+  { name: 'Git & GitHub Workflow', category: 'Tools', keywords: ['Git', 'GitHub', 'Version Control'], count: 0, color: '#F05032', bg: 'hover:bg-[#F05032]/10 hover:border-[#F05032]/50' }
 ];
 
 const HIGHLIGHT_CARDS = [
-  { icon: Terminal, title: 'Frontend Mastery', desc: 'React 18, Single Page Applications, Context API, Modern Hooks, and Responsive Tailwind Layouts.' },
-  { icon: Server, title: 'Backend Engine', desc: 'Node.js, Express RESTful APIs, Stateful JWT Auth, Security Middleware, and Clean Architecture.' },
-  { icon: Database, title: 'Data Management', desc: 'MongoDB Atlas, Mongoose Relational Schemas, Indexing, and Efficient CRUD Operations.' }
+  { icon: Terminal, title: 'Frontend Architecture', desc: 'Crafting responsive Single Page Applications (SPAs) with React 18, Tailwind CSS, and optimized state management.' },
+  { icon: Server, title: 'Backend Engineering', desc: 'Designing RESTful APIs with Node.js, Express, stateful JWT authentication, and security middleware.' },
+  { icon: Database, title: 'Database & Data Modeling', desc: 'Managing MongoDB Atlas databases, structured Mongoose schemas, data validation, and aggregation pipelines.' }
 ];
 
 const AboutAndSkills = () => {
   const [copied, setCopied] = useState(false);
   const [skills, setSkills] = useState(SKILLS_TEMPLATE);
   
-  const myEmail = "Rajyabdullah@gmail.com";
+  const myEmail = "rajyabdullah@gmail.com";
 
   useEffect(() => {
     let isMounted = true;
@@ -81,7 +81,7 @@ const AboutAndSkills = () => {
       className="py-12 md:py-16 space-y-16 select-none"
     >
       
-      {/* About Section */}
+      {/* About Section Header */}
       <div className="max-w-4xl mx-auto space-y-8 px-4">
         <div className="text-center space-y-3">
           <div className="inline-flex items-center gap-2 text-emerald-400 font-semibold text-xs tracking-wider uppercase bg-emerald-500/10 px-3.5 py-1.5 rounded-full border border-emerald-500/20 shadow-sm">
@@ -154,7 +154,7 @@ const AboutAndSkills = () => {
           </div>
           <h3 className="text-2xl sm:text-3xl font-bold text-white">Technologies I Work With</h3>
           <p className="text-xs text-slate-400 max-w-lg mx-auto">
-            Dynamic database-synced project counters mapping core engineering milestones.
+            Database-synced skill counters dynamically calculating project milestones in real time.
           </p>
         </div>
 
@@ -186,7 +186,7 @@ const AboutAndSkills = () => {
         {/* Live Sync Footer Note */}
         <div className="flex items-center justify-center gap-2 text-[11px] font-mono text-slate-500 pt-4">
           <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-          <span>Real-time aggregation synced with backend database</span>
+          <span>Real-time skill aggregation synced with MongoDB Atlas</span>
         </div>
       </div>
     </motion.section>
