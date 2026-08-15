@@ -1,18 +1,21 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Terminal, Sparkles, FileText, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Terminal, Sparkles, FileText, CheckCircle2, User, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Hero = () => {
   return (
-    <section className="relative min-h-[85vh] flex items-center py-20 sm:py-28 overflow-hidden select-none">
+    <section className="relative min-h-[85vh] flex items-center py-16 sm:py-28 overflow-hidden select-none">
+      {/* Dynamic Background Glow Orbs */}
       <div className="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-emerald-500/10 blur-[120px] rounded-full pointer-events-none -z-10" />
       <div className="absolute top-1/3 right-1/4 w-[300px] h-[200px] bg-sky-500/10 blur-[90px] rounded-full pointer-events-none -z-10" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex flex-col-reverse lg:flex-row items-center justify-between gap-12 lg:gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex flex-col-reverse lg:flex-row items-center justify-between gap-10 lg:gap-8">
         
-        <div className="flex-1 flex flex-col items-center lg:items-start text-center lg:text-left space-y-8">
+        {/* Left Column: Text & Hero CTA */}
+        <div className="flex-1 flex flex-col items-center lg:items-start text-center lg:text-left space-y-7">
           
+          {/* Status Badges */}
           <motion.div 
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -33,6 +36,7 @@ const Hero = () => {
             </div>
           </motion.div>
 
+          {/* Main Headline */}
           <motion.h1 
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
@@ -45,6 +49,7 @@ const Hero = () => {
             </span>
           </motion.h1>
 
+          {/* Main Bio Paragraph */}
           <motion.p 
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
@@ -54,11 +59,42 @@ const Hero = () => {
             Hi, I'm <strong className="text-slate-200 font-semibold">Raji Al-Abdullah</strong>. I specialize in engineering production-grade full-stack web applications using React, Node.js, Express, and MongoDB with a focus on high performance and clean architecture.
           </motion.p>
 
+          {/* Micro-Bio Teaser Card (Designed specifically to highlight About section) */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.25 }}
+            className="w-full max-w-2xl p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-sm text-left flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg group hover:border-emerald-500/30 transition-all"
+          >
+            <div className="flex items-start gap-3.5">
+              <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shrink-0 mt-0.5">
+                <User className="w-4 h-4" />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider font-mono">
+                  Software Engineering Profile
+                </h4>
+                <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">
+                  Passionate about crafting fast REST APIs, responsive UI layouts & clean code architecture.
+                </p>
+              </div>
+            </div>
+
+            <Link
+              to="/about"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-400 hover:text-emerald-300 shrink-0 transition-colors group/link self-end sm:self-center"
+            >
+              <span>Read Full Bio</span>
+              <ChevronRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover/link:translate-x-0.5" />
+            </Link>
+          </motion.div>
+
+          {/* Hero Action Buttons */}
           <motion.div 
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2"
+            className="flex flex-wrap items-center justify-center lg:justify-start gap-3.5 pt-1 w-full"
           >
             <Link
               to="/portfolio"
@@ -87,11 +123,12 @@ const Hero = () => {
             </a>
           </motion.div>
 
+          {/* Tech Highlights */}
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="pt-6 flex flex-wrap items-center justify-center lg:justify-start gap-6 text-slate-400 text-xs font-mono w-full"
+            className="pt-4 flex flex-wrap items-center justify-center lg:justify-start gap-6 text-slate-400 text-xs font-mono w-full"
           >
             <div className="flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
@@ -109,28 +146,29 @@ const Hero = () => {
 
         </div>
 
+        {/* Right Column: Profile Avatar */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8 }}
-          className="flex-1 flex justify-center items-center relative w-full lg:max-w-md py-10 lg:py-0"
+          className="flex-1 flex justify-center items-center relative w-full lg:max-w-md py-6 lg:py-0"
         >
           <motion.div
             animate={{
               boxShadow: [
                 "0 0 0 0px rgba(16, 185, 129, 0.4)",
-                "0 0 0 40px rgba(16, 185, 129, 0)",
+                "0 0 0 35px rgba(16, 185, 129, 0)",
               ],
             }}
             transition={{
-              duration: 2,
+              duration: 2.2,
               repeat: Infinity,
               ease: "linear",
             }}
-            className="absolute rounded-full w-[260px] h-[260px] sm:w-[320px] sm:h-[320px]"
+            className="absolute rounded-full w-[240px] h-[240px] sm:w-[320px] sm:h-[320px]"
           />
           
-          <div className="relative z-10 w-[260px] h-[260px] sm:w-[320px] sm:h-[320px] rounded-full p-2 bg-gradient-to-tr from-emerald-500 to-teal-900 shadow-[0_0_30px_rgba(16,185,129,0.2)]">
+          <div className="relative z-10 w-[240px] h-[240px] sm:w-[320px] sm:h-[320px] rounded-full p-2 bg-gradient-to-tr from-emerald-500 to-teal-900 shadow-[0_0_30px_rgba(16,185,129,0.2)]">
             <img 
               src="/profile.jpg" 
               alt="Raji Al-Abdullah" 
