@@ -121,16 +121,14 @@ const AboutAndSkills = () => {
           </div>
         </div>
 
-        {/* Feature Highlight Cards */}
+        {/* Feature Highlight Cards (Fixed Y Position) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-4">
           {HIGHLIGHT_CARDS.map((card, idx) => {
             const IconComponent = card.icon;
             return (
-              <motion.div
+              <div
                 key={idx}
-                whileHover={{ y: -5 }}
-                transition={{ type: "spring", stiffness: 350, damping: 20 }}
-                className="p-6 rounded-3xl bg-slate-900/80 border border-slate-800/80 hover:border-emerald-500/40 transition-all shadow-xl flex flex-col justify-between group backdrop-blur-md"
+                className="p-6 rounded-3xl bg-slate-900/80 border border-slate-800/80 hover:border-emerald-500/40 transition-colors shadow-xl flex flex-col justify-between group backdrop-blur-md"
               >
                 <div className="space-y-3">
                   <div className="p-3 rounded-2xl bg-slate-800/80 w-fit text-emerald-400 border border-slate-700/50 group-hover:scale-110 group-hover:bg-emerald-500/10 transition-all">
@@ -139,7 +137,7 @@ const AboutAndSkills = () => {
                   <h3 className="font-bold text-white text-base group-hover:text-emerald-400 transition-colors">{card.title}</h3>
                   <p className="text-xs text-slate-400 leading-relaxed">{card.desc}</p>
                 </div>
-              </motion.div>
+              </div>
             );
           })}
         </div>

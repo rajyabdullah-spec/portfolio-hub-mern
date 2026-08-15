@@ -59,11 +59,11 @@ const Hero = () => {
             Hi, I'm <strong className="text-slate-200 font-semibold">Raji Al-Abdullah</strong>. I specialize in engineering production-grade full-stack web applications using React, Node.js, Express, and MongoDB with a focus on high performance and clean architecture.
           </motion.p>
 
-          {/* Micro-Bio Teaser Card (Designed specifically to highlight About section) */}
+          {/* Micro-Bio Teaser Card (Fixed Y-Offset for Smooth Fade-In) */}
           <motion.div
-            initial={{ opacity: 0, y: 15 }}
+            initial={{ opacity: 0, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.25 }}
+            transition={{ duration: 0.5, delay: 0.25 }}
             className="w-full max-w-2xl p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-sm text-left flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg group hover:border-emerald-500/30 transition-all"
           >
             <div className="flex items-start gap-3.5">
