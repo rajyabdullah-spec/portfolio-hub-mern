@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Code2, Copy, Check, Terminal, Server, Database, Sparkles } from 'lucide-react';
+import { User, Code2, Copy, Check, Terminal, Server, Database, Sparkles, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import API from '../api/axios';
 
@@ -80,8 +81,6 @@ const AboutAndSkills = () => {
       transition={{ duration: 0.5 }}
       className="py-12 md:py-16 space-y-16 select-none"
     >
-      
-      {/* About Section Header */}
       <div className="max-w-4xl mx-auto space-y-8 px-4">
         <div className="text-center space-y-3">
           <div className="inline-flex items-center gap-2 text-emerald-400 font-semibold text-xs tracking-wider uppercase bg-emerald-500/10 px-3.5 py-1.5 rounded-full border border-emerald-500/20 shadow-sm">
@@ -96,7 +95,6 @@ const AboutAndSkills = () => {
             Focused on clean architecture, modern UI design, and robust backend services.
           </p>
 
-          {/* Copy Email Button */}
           <div className="pt-3 flex justify-center">
             <button
               onClick={handleCopy}
@@ -121,7 +119,6 @@ const AboutAndSkills = () => {
           </div>
         </div>
 
-        {/* Feature Highlight Cards (Fixed Y Position) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-4">
           {HIGHLIGHT_CARDS.map((card, idx) => {
             const IconComponent = card.icon;
@@ -143,7 +140,6 @@ const AboutAndSkills = () => {
         </div>
       </div>
 
-      {/* Dynamic Skills Section */}
       <div id="skills" className="space-y-8 pt-6 max-w-4xl mx-auto px-4">
         <div className="text-center space-y-2">
           <div className="inline-flex items-center gap-2 text-emerald-400 font-semibold text-xs tracking-wider uppercase bg-emerald-500/10 px-3.5 py-1.5 rounded-full border border-emerald-500/20 shadow-sm">
@@ -156,7 +152,6 @@ const AboutAndSkills = () => {
           </p>
         </div>
 
-        {/* Badges Grid */}
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -181,11 +176,27 @@ const AboutAndSkills = () => {
           ))}
         </motion.div>
 
-        {/* Live Sync Footer Note */}
         <div className="flex items-center justify-center gap-2 text-[11px] font-mono text-slate-500 pt-4">
           <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
           <span>Real-time skill aggregation synced with MongoDB Atlas</span>
         </div>
+
+        {/* Sequential Navigation CTA - Matched exact style from PortfolioGrid */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.6 }}
+          className="flex justify-center pt-16 pb-4"
+        >
+          <Link
+            to="/portfolio"
+            className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-emerald-400 border border-slate-800 hover:border-emerald-500/40 font-semibold text-sm transition-all shadow-xl hover:shadow-emerald-500/10 hover:-translate-y-1"
+          >
+            <span>Next: Check Out My Work & Projects</span>
+            <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1.5" />
+          </Link>
+        </motion.div>
+
       </div>
     </motion.section>
   );

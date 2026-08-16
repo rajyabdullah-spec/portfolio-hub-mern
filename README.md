@@ -53,7 +53,7 @@ Portfolio Hub is a modern, production-ready Full-Stack MERN (MongoDB, Express.js
     portfolio-hub-mern/
     ├── backend/                  # Express API Server & Database Logic
     │   ├── config/               # Database Connection Configuration
-    │   ├── controllers/          # Request Handlers & Business Logic (authController, projectController, etc.)
+    │   ├── controllers/          # Request Handlers & Business Logic
     │   ├── middlewares/          # JWT Protect Guard & Error Handling
     │   ├── models/               # Mongoose Schemas (User, Project, Message)
     │   ├── routes/               # API Route Endpoints
@@ -63,7 +63,7 @@ Portfolio Hub is a modern, production-ready Full-Stack MERN (MongoDB, Express.js
     ├── client/                   # Vite React Frontend
     │   ├── src/
     │   │   ├── api/              # Axios Centralized Client (withCredentials: true)
-    │   │   ├── components/       # Reusable UI Components (Hero, PortfolioGrid, ProjectCard3D, AboutAndSkills, ContactForm, Navbar, Footer)
+    │   │   ├── components/       # Reusable UI Components
     │   │   ├── context/          # Auth Context Provider
     │   │   ├── pages/            # View Pages (LoginPage, AdminDashboard)
     │   │   └── App.jsx           # Main Router Setup
@@ -85,12 +85,10 @@ Portfolio Hub is a modern, production-ready Full-Stack MERN (MongoDB, Express.js
 
 ### 2. Backend Configuration
 Navigate to backend directory and install dependencies:
-    
     cd backend
     npm install
 
 Create a `.env` file inside the backend folder:
-    
     PORT=5000
     NODE_ENV=development
     MONGO_URI=mongodb://127.0.0.1:27017/portfolio_hub
@@ -102,25 +100,20 @@ Create a `.env` file inside the backend folder:
     CLIENT_URL=http://localhost:5173
 
 Seed initial Admin user and default projects (Optional):
-    
     npm run seed
 
 Run Express Backend Server:
-    
     npm run dev
 
 ### 3. Frontend Configuration
 Open a new terminal, navigate to the client directory and install dependencies:
-    
     cd client
     npm install
 
 Create a `.env` file inside the client folder:
-    
     VITE_API_URL=http://localhost:5000/api
 
 Run Vite React Frontend:
-    
     npm run dev
 
 The application will be accessible at `http://localhost:5173`.
@@ -133,7 +126,7 @@ The application will be accessible at `http://localhost:5173`.
 - `POST /api/auth/login` — Public — Authenticates admin & sets HTTP-Only Cookie
 - `GET /api/auth/me` — Private — Verifies current active user session
 - `POST /api/auth/logout` — Private — Clears authentication cookie
-- `GET /api/projects` — Public — Fetches all portfolio items chronologically for the Portfolio Showcase
+- `GET /api/projects` — Public — Fetches all portfolio items chronologically
 - `POST /api/projects` — Private (Admin) — Creates a new project entry
 - `PUT /api/projects/:id` — Private (Admin) — Updates an existing project by ID
 - `DELETE /api/projects/:id` — Private (Admin) — Deletes a project by ID

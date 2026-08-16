@@ -23,7 +23,6 @@ const ContactForm = () => {
   };
 
   const handleMouseMove = (e) => {
-    // Disable 3D calculations on mobile to prevent performance lag during scroll
     if (window.innerWidth < 768) return;
 
     const card = e.currentTarget.getBoundingClientRect();
@@ -80,7 +79,6 @@ const ContactForm = () => {
       transition={{ duration: 0.5 }}
       className="relative py-12 md:py-16 select-none overflow-hidden"
     >
-      {/* Dynamic Animated Ambient Orbs - Hidden on Mobile to fix GPU rendering bugs */}
       <motion.div 
         animate={{
           scale: [1, 1.2, 1],
@@ -102,7 +100,6 @@ const ContactForm = () => {
         className="hidden md:block absolute bottom-10 right-10 w-96 h-96 bg-teal-500/15 blur-[130px] rounded-full pointer-events-none -z-10"
       />
 
-      {/* Header Section */}
       <div className="text-center max-w-xl mx-auto mb-12 space-y-2 relative z-10">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-semibold text-xs shadow-sm md:backdrop-blur-sm">
           <MessageSquareText className="w-4 h-4" />
@@ -118,7 +115,6 @@ const ContactForm = () => {
 
       <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative z-10">
         
-        {/* Left Column: Contact Info Cards */}
         <div className="lg:col-span-5 space-y-6">
           <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-6 shadow-2xl md:bg-slate-900/80 md:backdrop-blur-md">
             <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
@@ -140,8 +136,8 @@ const ContactForm = () => {
                 </div>
                 <div>
                   <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 block">Direct Email</span>
-                  <a href="mailto:Rajyabdullah@gmail.com" className="text-sm font-semibold text-slate-200 hover:text-emerald-400 transition-colors">
-                    Rajyabdullah@gmail.com
+                  <a href="mailto:rajyabdullah@gmail.com" className="text-sm font-semibold text-slate-200 hover:text-emerald-400 transition-colors">
+                    rajyabdullah@gmail.com
                   </a>
                 </div>
               </motion.div>
@@ -189,7 +185,6 @@ const ContactForm = () => {
           </div>
         </div>
 
-        {/* Right Column: Interactive Form or Animated Success Card */}
         <div className="lg:col-span-7">
           <motion.div
             style={{ perspective: 1000 }}
@@ -199,7 +194,6 @@ const ContactForm = () => {
             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
             className="relative p-6 sm:p-8 rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl overflow-hidden group hover:border-emerald-500/40 transition-colors md:bg-slate-900/90 md:backdrop-blur-md min-h-[440px] flex flex-col justify-center"
           >
-            {/* Radial Mouse Follow Glow - Hidden on mobile */}
             <div
               className="hidden md:block pointer-events-none absolute -inset-px opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl"
               style={{
@@ -230,9 +224,10 @@ const ContactForm = () => {
                           type="text"
                           name="senderName"
                           required
+                          disabled={loading}
                           value={formData.senderName}
                           onChange={handleChange}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder-slate-600"
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder-slate-600 disabled:opacity-50"
                           placeholder="Your Full Name"
                         />
                       </div>
@@ -242,9 +237,10 @@ const ContactForm = () => {
                           type="email"
                           name="email"
                           required
+                          disabled={loading}
                           value={formData.email}
                           onChange={handleChange}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder-slate-600"
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder-slate-600 disabled:opacity-50"
                           placeholder="name@example.com"
                         />
                       </div>
@@ -255,9 +251,10 @@ const ContactForm = () => {
                       <input
                         type="text"
                         name="subject"
+                        disabled={loading}
                         value={formData.subject}
                         onChange={handleChange}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder-slate-600"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder-slate-600 disabled:opacity-50"
                         placeholder="Project Inquiry / Job Opportunity"
                       />
                     </div>
@@ -268,9 +265,10 @@ const ContactForm = () => {
                         name="message"
                         required
                         rows="4"
+                        disabled={loading}
                         value={formData.message}
                         onChange={handleChange}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder-slate-600 resize-none"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder-slate-600 resize-none disabled:opacity-50"
                         placeholder="Write your message details here..."
                       ></textarea>
                     </div>
@@ -300,7 +298,6 @@ const ContactForm = () => {
                   transition={{ duration: 0.5, type: 'spring' }}
                   className="relative z-10 py-8 text-center flex flex-col items-center justify-center space-y-6"
                 >
-                  {/* Flying Paper Plane Trail Animation */}
                   <div className="relative w-full flex justify-center items-center h-24">
                     <motion.div
                       initial={{ x: -120, y: 80, opacity: 0, scale: 0.4, rotate: -25 }}

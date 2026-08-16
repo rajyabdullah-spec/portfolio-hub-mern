@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FolderGit2, Loader2, Filter, ChevronDown, ChevronUp, Search, X, Sparkles } from 'lucide-react';
+import { FolderGit2, Loader2, Filter, ChevronDown, ChevronUp, Search, X, Sparkles, LayoutGrid, List, ArrowRight, ExternalLink, Code2, PlayCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import ProjectCard3D from './ProjectCard3D';
 import API from '../api/axios';
 
 const CATEGORIES = ['All', 'HTML & CSS', 'Vanilla JS', 'Algorithms', 'AJAX & APIs', 'Node.js', 'React'];
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = 6;
 
 const PortfolioGrid = () => {
   const [projects, setProjects] = useState([]);
@@ -13,6 +14,7 @@ const PortfolioGrid = () => {
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
+  const [viewMode, setViewMode] = useState('grid');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -104,7 +106,6 @@ const PortfolioGrid = () => {
       transition={{ duration: 0.5 }}
       className="py-12 md:py-16 select-none max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
     >
-      {/* Header Section */}
       <div className="text-center max-w-2xl mx-auto mb-10 space-y-2">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-semibold text-xs shadow-sm backdrop-blur-sm">
           <FolderGit2 className="w-4 h-4" />
@@ -118,31 +119,48 @@ const PortfolioGrid = () => {
         </p>
       </div>
 
-      {/* Controls Bar: Categories & Live Search */}
       <div className="space-y-6 mb-10">
-        
-        {/* Real-time Search Input */}
-        <div className="max-w-md mx-auto relative">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search projects by name, keyword, or tech..."
-            className="w-full pl-10 pr-10 py-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 text-slate-100 text-xs focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder-slate-500 shadow-inner"
-          />
-          {searchQuery && (
-            <button 
-              onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg text-slate-500 hover:text-slate-300 transition-colors"
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 max-w-4xl mx-auto w-full">
+          <div className="relative w-full flex-1">
+            <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search projects by name, keyword, or tech..."
+              className="w-full pl-12 pr-12 py-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder-slate-500 shadow-inner"
+            />
+            {searchQuery && (
+              <button 
+                onClick={() => setSearchQuery('')}
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-slate-500 hover:text-slate-300 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+
+          <div className="flex items-center bg-slate-900 border border-slate-800 rounded-2xl p-1.5 shrink-0 w-full sm:w-auto justify-center sm:justify-start">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`p-2.5 rounded-xl transition-all ${
+                viewMode === 'grid' ? 'bg-slate-800 text-emerald-400 shadow-sm' : 'text-slate-500 hover:text-slate-300'
+              }`}
             >
-              <X className="w-3.5 h-3.5" />
+              <LayoutGrid className="w-5 h-5" />
             </button>
-          )}
+            <button
+              onClick={() => setViewMode('list')}
+              className={`p-2.5 rounded-xl transition-all ${
+                viewMode === 'list' ? 'bg-slate-800 text-emerald-400 shadow-sm' : 'text-slate-500 hover:text-slate-300'
+              }`}
+            >
+              <List className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
-        {/* Filter Categories Buttons */}
-        <div className="flex flex-wrap justify-center items-center gap-2">
+        <div className="flex flex-wrap justify-center items-center gap-2 pt-2">
           <Filter className="w-4 h-4 text-slate-500 mr-1 hidden sm:block" />
           {CATEGORIES.map(category => {
             const categoryCount = projects.filter(p => isProjectInCategory(p, category)).length;
@@ -173,7 +191,6 @@ const PortfolioGrid = () => {
           })}
         </div>
 
-        {/* Counter Badge */}
         {!loading && !error && (
           <div className="text-center text-[11px] font-mono text-slate-500 flex items-center justify-center gap-1.5 pt-1">
             <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
@@ -182,7 +199,6 @@ const PortfolioGrid = () => {
         )}
       </div>
 
-      {/* Main Content Area */}
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 py-6">
           {[1, 2, 3, 4, 5, 6].map((n) => (
@@ -209,25 +225,137 @@ const PortfolioGrid = () => {
         <>
           <motion.div 
             layout
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            className={viewMode === 'grid' 
+              ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" 
+              : "flex flex-col gap-4 max-w-5xl mx-auto"
+            }
           >
             <AnimatePresence>
-              {displayedProjects.map((project) => (
-                <motion.div
-                  key={project._id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <ProjectCard3D project={project} />
-                </motion.div>
-              ))}
+              {displayedProjects.map((project) => {
+                
+                // Logic Extracted directly from ProjectCard3D
+                const hasLiveApp = Boolean(project.liveUrl) && project.liveUrl.includes('http');
+                const hasGifDemo = Boolean(project.imageUrl) && project.imageUrl.length > 0;
+                const directFolderUrl = project.subPathUrl || project.githubUrl || '';
+                
+                const getMainRepoUrl = (url) => {
+                  if (!url) return 'https://github.com/rajyabdullah-spec/portfolio-hub-mern';
+                  const match = url.match(/https:\/\/github\.com\/[^\/]+\/[^\/]+/);
+                  return match ? match[0] : url;
+                };
+                const mainRepoUrl = getMainRepoUrl(project.githubUrl || project.subPathUrl);
+
+                return (
+                  <motion.div
+                    key={project._id}
+                    layout
+                    initial={{ opacity: 0, scale: viewMode === 'grid' ? 0.9 : 0.98, y: viewMode === 'list' ? 10 : 0 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {viewMode === 'grid' ? (
+                      <ProjectCard3D project={project} />
+                    ) : (
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 p-5 sm:p-6 rounded-3xl bg-slate-900/90 border border-slate-800/80 hover:border-emerald-500/40 transition-all shadow-lg backdrop-blur-sm group">
+                        
+                        <div className="flex-1 space-y-3">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className={`text-[10px] font-mono px-2.5 py-0.5 rounded-full border shadow-sm ${
+                              hasLiveApp
+                                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                                : hasGifDemo
+                                ? 'bg-indigo-500/10 border-indigo-500/30 text-indigo-400'
+                                : 'bg-slate-800/80 border-slate-700/60 text-slate-400'
+                            }`}>
+                              {hasLiveApp ? '● Live Application' : hasGifDemo ? '🎬 Interactive Demo' : '💻 Code Module'}
+                            </span>
+                          </div>
+                          <h3 className="text-xl font-bold text-white group-hover:text-emerald-400 transition-colors line-clamp-1">
+                            {project.title}
+                          </h3>
+                          <p className="text-sm text-slate-400 line-clamp-2 max-w-3xl leading-relaxed">
+                            {project.description}
+                          </p>
+                          <div className="flex flex-wrap gap-1.5 pt-1">
+                            {(project.techStack || []).slice(0, 6).map((tech, i) => (
+                              <span key={i} className="text-[10px] font-mono px-2 py-0.5 rounded-lg bg-slate-800/90 text-slate-300 border border-slate-700/50">
+                                {tech}
+                              </span>
+                            ))}
+                            {(project.techStack || []).length > 6 && (
+                              <span className="text-[10px] font-mono px-2 py-0.5 rounded-lg bg-slate-800/50 text-slate-500 border border-slate-800">
+                                +{project.techStack.length - 6}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto mt-2 sm:mt-0 pt-4 sm:pt-0 border-t border-slate-800/80 sm:border-t-0">
+                          
+                          <div className="flex items-center gap-1.5 w-full sm:w-auto">
+                            {directFolderUrl && (
+                              <a
+                                href={directFolderUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="flex-1 sm:flex-none flex justify-center items-center p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 transition-all hover:-translate-y-0.5 active:translate-y-0"
+                                title="View Direct Project Code Folder"
+                              >
+                                <Code2 className="w-4 h-4" />
+                              </a>
+                            )}
+                            <a
+                              href={mainRepoUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="flex-1 sm:flex-none flex justify-center items-center p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 transition-all hover:-translate-y-0.5 active:translate-y-0"
+                              title="Open Repository Root"
+                            >
+                              <FolderGit2 className="w-4 h-4" />
+                            </a>
+                          </div>
+
+                          {hasLiveApp ? (
+                            <a
+                              href={project.liveUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 py-2.5 px-5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-xs shadow-md shadow-emerald-500/20 transition-all border border-emerald-400/30 hover:-translate-y-0.5 active:translate-y-0"
+                            >
+                              <span>Live App</span>
+                              <ExternalLink className="w-3.5 h-3.5" />
+                            </a>
+                          ) : hasGifDemo ? (
+                            <a
+                              href={project.imageUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 py-2.5 px-5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-500 hover:from-indigo-500 hover:to-purple-400 text-white font-bold text-xs shadow-md shadow-indigo-500/20 transition-all border border-indigo-400/30 hover:-translate-y-0.5 active:translate-y-0"
+                            >
+                              <PlayCircle className="w-3.5 h-3.5" />
+                              <span>Watch Demo</span>
+                            </a>
+                          ) : (
+                            <a
+                              href={directFolderUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 py-2.5 px-5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-semibold text-xs transition-all border border-slate-700 hover:-translate-y-0.5 active:translate-y-0"
+                            >
+                              <Code2 className="w-3.5 h-3.5" />
+                              <span>Explore Code</span>
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </motion.div>
+                );
+              })}
             </AnimatePresence>
           </motion.div>
           
-          {/* Pagination Controls */}
           <div className="flex justify-center items-center gap-4 mt-12">
             {hasMore && (
               <button
@@ -256,6 +384,22 @@ const PortfolioGrid = () => {
               </button>
             )}
           </div>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.6 }}
+            className="flex justify-center pt-16 pb-4"
+          >
+            <Link
+              to="/contact"
+              className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-emerald-400 border border-slate-800 hover:border-emerald-500/40 font-semibold text-sm transition-all shadow-xl hover:shadow-emerald-500/10 hover:-translate-y-1"
+            >
+              <span>Like What You See? Get In Touch</span>
+              <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1.5" />
+            </Link>
+          </motion.div>
+
         </>
       )}
     </motion.section>
