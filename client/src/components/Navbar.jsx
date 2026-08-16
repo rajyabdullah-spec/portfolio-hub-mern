@@ -28,7 +28,7 @@ const Navbar = () => {
   const navLinks = [
     { path: '/', label: 'Home' },
     { path: '/about', label: 'About' },
-    { path: '/Portfolio', label: 'Portfolio' },
+    { path: '/portfolio', label: 'Portfolio' },
     { path: '/contact', label: 'Contact' }
   ];
 
@@ -44,7 +44,7 @@ const Navbar = () => {
           
           <div className="hidden sm:flex items-center gap-6 text-sm font-medium text-slate-300">
             {navLinks.map((navItem) => {
-              const isActive = location.pathname === navItem.path;
+              const isActive = location.pathname.toLowerCase() === navItem.path.toLowerCase();
               return (
                 <Link
                   key={navItem.path}
@@ -105,18 +105,21 @@ const Navbar = () => {
 
       {mobileMenuOpen && (
         <div className="sm:hidden bg-slate-950/95 border-b border-slate-800 px-4 pt-2 pb-6 space-y-3 shadow-2xl">
-          {navLinks.map((navItem) => (
-            <Link
-              key={navItem.path}
-              to={navItem.path}
-              onClick={() => setMobileMenuOpen(false)}
-              className={`block px-3 py-2 rounded-lg text-sm font-medium ${
-                location.pathname === navItem.path ? 'bg-slate-900 text-emerald-400 font-bold border-l-2 border-emerald-400' : 'text-slate-300 hover:text-white hover:bg-slate-900'
-              }`}
-            >
-              {navItem.label}
-            </Link>
-          ))}
+          {navLinks.map((navItem) => {
+            const isActive = location.pathname.toLowerCase() === navItem.path.toLowerCase();
+            return (
+              <Link
+                key={navItem.path}
+                to={navItem.path}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`block px-3 py-2 rounded-lg text-sm font-medium ${
+                  isActive ? 'bg-slate-900 text-emerald-400 font-bold border-l-2 border-emerald-400' : 'text-slate-300 hover:text-white hover:bg-slate-900'
+                }`}
+              >
+                {navItem.label}
+              </Link>
+            );
+          })}
 
           <div className="pt-2 border-t border-slate-800">
             {user ? (

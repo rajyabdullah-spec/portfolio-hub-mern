@@ -181,19 +181,19 @@ const AboutAndSkills = () => {
           <span>Real-time skill aggregation synced with MongoDB Atlas</span>
         </div>
 
-        {/* Sequential Navigation CTA - Matched exact style from PortfolioGrid */}
+        {/* Fully Responsive CTA Button */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.6 }}
-          className="flex justify-center pt-16 pb-4"
+          className="flex justify-center pt-12 pb-4 w-full px-4"
         >
           <Link
             to="/portfolio"
-            className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-emerald-400 border border-slate-800 hover:border-emerald-500/40 font-semibold text-sm transition-all shadow-xl hover:shadow-emerald-500/10 hover:-translate-y-1"
+            className="group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-emerald-400 border border-slate-800 hover:border-emerald-500/40 font-semibold text-xs sm:text-sm transition-all shadow-xl hover:shadow-emerald-500/10 hover:-translate-y-1 text-center"
           >
             <span>Next: Check Out My Work & Projects</span>
-            <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1.5" />
+            <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 group-hover:translate-x-1.5 shrink-0" />
           </Link>
         </motion.div>
 

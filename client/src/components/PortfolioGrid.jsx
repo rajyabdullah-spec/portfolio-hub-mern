@@ -120,42 +120,44 @@ const PortfolioGrid = () => {
       </div>
 
       <div className="space-y-6 mb-10">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 max-w-4xl mx-auto w-full">
-          <div className="relative w-full flex-1">
-            <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+        {/* Responsive Controls Wrapper */}
+        <div className="flex flex-row items-center justify-between gap-3 max-w-4xl mx-auto w-full">
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 sm:w-5 sm:h-5 absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 text-slate-500" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search projects by name, keyword, or tech..."
-              className="w-full pl-12 pr-12 py-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder-slate-500 shadow-inner"
+              placeholder="Search projects..."
+              className="w-full pl-10 sm:pl-12 pr-10 py-2.5 sm:py-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 text-slate-100 text-xs sm:text-sm focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder-slate-500 shadow-inner"
             />
             {searchQuery && (
               <button 
                 onClick={() => setSearchQuery('')}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-slate-500 hover:text-slate-300 transition-colors"
+                className="absolute right-3.5 sm:right-4 top-1/2 -translate-y-1/2 p-1 rounded-lg text-slate-500 hover:text-slate-300 transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
             )}
           </div>
 
-          <div className="flex items-center bg-slate-900 border border-slate-800 rounded-2xl p-1.5 shrink-0 w-full sm:w-auto justify-center sm:justify-start">
+          {/* View Mode Toggle - Fixed Size */}
+          <div className="flex items-center bg-slate-900 border border-slate-800 rounded-2xl p-1 shrink-0">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-2.5 rounded-xl transition-all ${
+              className={`p-2 sm:p-2.5 rounded-xl transition-all ${
                 viewMode === 'grid' ? 'bg-slate-800 text-emerald-400 shadow-sm' : 'text-slate-500 hover:text-slate-300'
               }`}
             >
-              <LayoutGrid className="w-5 h-5" />
+              <LayoutGrid className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`p-2.5 rounded-xl transition-all ${
+              className={`p-2 sm:p-2.5 rounded-xl transition-all ${
                 viewMode === 'list' ? 'bg-slate-800 text-emerald-400 shadow-sm' : 'text-slate-500 hover:text-slate-300'
               }`}
             >
-              <List className="w-5 h-5" />
+              <List className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
         </div>
@@ -227,13 +229,12 @@ const PortfolioGrid = () => {
             layout
             className={viewMode === 'grid' 
               ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" 
-              : "flex flex-col gap-4 max-w-5xl mx-auto"
+              : "flex flex-col gap-4 max-w-5xl mx-auto w-full"
             }
           >
             <AnimatePresence>
               {displayedProjects.map((project) => {
                 
-                // Logic Extracted directly from ProjectCard3D
                 const hasLiveApp = Boolean(project.liveUrl) && project.liveUrl.includes('http');
                 const hasGifDemo = Boolean(project.imageUrl) && project.imageUrl.length > 0;
                 const directFolderUrl = project.subPathUrl || project.githubUrl || '';
@@ -253,13 +254,15 @@ const PortfolioGrid = () => {
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ duration: 0.3 }}
+                    className="w-full"
                   >
                     {viewMode === 'grid' ? (
                       <ProjectCard3D project={project} />
                     ) : (
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 p-5 sm:p-6 rounded-3xl bg-slate-900/90 border border-slate-800/80 hover:border-emerald-500/40 transition-all shadow-lg backdrop-blur-sm group">
+                      /* Fully Expanded Horizontal List Row Card */
+                      <div className="w-full flex flex-col md:flex-row md:items-center justify-between gap-5 p-5 sm:p-6 rounded-3xl bg-slate-900/90 border border-slate-800/80 hover:border-emerald-500/40 transition-all shadow-lg backdrop-blur-sm group">
                         
-                        <div className="flex-1 space-y-3">
+                        <div className="flex-1 space-y-2.5 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
                             <span className={`text-[10px] font-mono px-2.5 py-0.5 rounded-full border shadow-sm ${
                               hasLiveApp
@@ -271,10 +274,10 @@ const PortfolioGrid = () => {
                               {hasLiveApp ? '● Live Application' : hasGifDemo ? '🎬 Interactive Demo' : '💻 Code Module'}
                             </span>
                           </div>
-                          <h3 className="text-xl font-bold text-white group-hover:text-emerald-400 transition-colors line-clamp-1">
+                          <h3 className="text-lg font-bold text-white group-hover:text-emerald-400 transition-colors truncate">
                             {project.title}
                           </h3>
-                          <p className="text-sm text-slate-400 line-clamp-2 max-w-3xl leading-relaxed">
+                          <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
                             {project.description}
                           </p>
                           <div className="flex flex-wrap gap-1.5 pt-1">
@@ -283,23 +286,17 @@ const PortfolioGrid = () => {
                                 {tech}
                               </span>
                             ))}
-                            {(project.techStack || []).length > 6 && (
-                              <span className="text-[10px] font-mono px-2 py-0.5 rounded-lg bg-slate-800/50 text-slate-500 border border-slate-800">
-                                +{project.techStack.length - 6}
-                              </span>
-                            )}
                           </div>
                         </div>
                         
-                        <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto mt-2 sm:mt-0 pt-4 sm:pt-0 border-t border-slate-800/80 sm:border-t-0">
-                          
-                          <div className="flex items-center gap-1.5 w-full sm:w-auto">
+                        <div className="flex items-center gap-2.5 shrink-0 pt-3 md:pt-0 border-t md:border-t-0 border-slate-800/80">
+                          <div className="flex items-center gap-1.5">
                             {directFolderUrl && (
                               <a
                                 href={directFolderUrl}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="flex-1 sm:flex-none flex justify-center items-center p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 transition-all hover:-translate-y-0.5 active:translate-y-0"
+                                className="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 transition-all hover:-translate-y-0.5 active:translate-y-0"
                                 title="View Direct Project Code Folder"
                               >
                                 <Code2 className="w-4 h-4" />
@@ -309,7 +306,7 @@ const PortfolioGrid = () => {
                               href={mainRepoUrl}
                               target="_blank"
                               rel="noreferrer"
-                              className="flex-1 sm:flex-none flex justify-center items-center p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 transition-all hover:-translate-y-0.5 active:translate-y-0"
+                              className="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 transition-all hover:-translate-y-0.5 active:translate-y-0"
                               title="Open Repository Root"
                             >
                               <FolderGit2 className="w-4 h-4" />
@@ -321,7 +318,7 @@ const PortfolioGrid = () => {
                               href={project.liveUrl}
                               target="_blank"
                               rel="noreferrer"
-                              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 py-2.5 px-5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-xs shadow-md shadow-emerald-500/20 transition-all border border-emerald-400/30 hover:-translate-y-0.5 active:translate-y-0"
+                              className="inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-xs shadow-md shadow-emerald-500/20 transition-all border border-emerald-400/30 hover:-translate-y-0.5 active:translate-y-0"
                             >
                               <span>Live App</span>
                               <ExternalLink className="w-3.5 h-3.5" />
@@ -331,7 +328,7 @@ const PortfolioGrid = () => {
                               href={project.imageUrl}
                               target="_blank"
                               rel="noreferrer"
-                              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 py-2.5 px-5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-500 hover:from-indigo-500 hover:to-purple-400 text-white font-bold text-xs shadow-md shadow-indigo-500/20 transition-all border border-indigo-400/30 hover:-translate-y-0.5 active:translate-y-0"
+                              className="inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-500 hover:from-indigo-500 hover:to-purple-400 text-white font-bold text-xs shadow-md shadow-indigo-500/20 transition-all border border-indigo-400/30 hover:-translate-y-0.5 active:translate-y-0"
                             >
                               <PlayCircle className="w-3.5 h-3.5" />
                               <span>Watch Demo</span>
@@ -341,7 +338,7 @@ const PortfolioGrid = () => {
                               href={directFolderUrl}
                               target="_blank"
                               rel="noreferrer"
-                              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 py-2.5 px-5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-semibold text-xs transition-all border border-slate-700 hover:-translate-y-0.5 active:translate-y-0"
+                              className="inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-semibold text-xs transition-all border border-slate-700 hover:-translate-y-0.5 active:translate-y-0"
                             >
                               <Code2 className="w-3.5 h-3.5" />
                               <span>Explore Code</span>
@@ -389,14 +386,14 @@ const PortfolioGrid = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.6 }}
-            className="flex justify-center pt-16 pb-4"
+            className="flex justify-center pt-16 pb-4 w-full px-4"
           >
             <Link
               to="/contact"
-              className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-emerald-400 border border-slate-800 hover:border-emerald-500/40 font-semibold text-sm transition-all shadow-xl hover:shadow-emerald-500/10 hover:-translate-y-1"
+              className="group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-emerald-400 border border-slate-800 hover:border-emerald-500/40 font-semibold text-xs sm:text-sm transition-all shadow-xl hover:shadow-emerald-500/10 hover:-translate-y-1 text-center"
             >
               <span>Like What You See? Get In Touch</span>
-              <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1.5" />
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 group-hover:translate-x-1.5 shrink-0" />
             </Link>
           </motion.div>
 
