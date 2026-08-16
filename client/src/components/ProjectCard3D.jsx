@@ -48,32 +48,37 @@ const ProjectCard3D = ({ project }) => {
     setRotateY(0);
   };
 
-  // Share Direct Link Handler
+  // Share Direct Link Handler pointing to custom personal domain
   const handleShare = async (e) => {
     e.stopPropagation();
-    const targetUrl = directFolderUrl || window.location.href;
+    
+    // Direct anchor link to this specific project on personal domain
+    const projectLink = `https://raji-dev.nl/portfolio#project-${project._id}`;
+
+    const shareData = {
+      title: `${project.title} | Raji Al-Abdullah`,
+      text: project.description,
+      url: projectLink,
+    };
 
     if (navigator.share) {
       try {
-        await navigator.share({
-          title: project.title,
-          text: project.description,
-          url: targetUrl,
-        });
+        await navigator.share(shareData);
         return;
       } catch (err) {
-        // Fallback to clipboard if share was cancelled or unsupported
+        // Fallback to clipboard if share action was cancelled or unsupported
       }
     }
 
-    navigator.clipboard.writeText(targetUrl);
+    navigator.clipboard.writeText(projectLink);
     setCopied(true);
-    toast.success('Project link copied to clipboard!');
+    toast.success('Direct project link copied to clipboard!');
     setTimeout(() => setCopied(false), 2000);
   };
 
   return (
     <motion.div
+      id={`project-${project._id}`}
       style={{ perspective: 1000, transformStyle: 'preserve-3d' }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
@@ -106,7 +111,7 @@ const ProjectCard3D = ({ project }) => {
           <button
             onClick={handleShare}
             className="p-1.5 rounded-xl bg-slate-800/60 hover:bg-slate-700 text-slate-400 hover:text-emerald-400 border border-slate-700/50 transition-all cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
-            title="Share Project Link"
+            title="Share Direct Project Link"
           >
             {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Share2 className="w-3.5 h-3.5" />}
           </button>
@@ -169,7 +174,7 @@ const ProjectCard3D = ({ project }) => {
           </a>
         )}
 
-        {/* Secondary GitHub Actions (Original Layout Restored) */}
+        {/* Secondary GitHub Actions */}
         <div className="flex items-center gap-1.5">
           {directFolderUrl && (
             <a

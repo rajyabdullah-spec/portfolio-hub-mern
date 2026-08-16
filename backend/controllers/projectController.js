@@ -1,9 +1,31 @@
 const Project = require('../models/Project');
 
-// @desc    Fetch all projects
+// @desc    Fetch all published projects (For Public Portfolio)
 // @route   GET /api/projects
 // @access  Public
 const getProjects = async (req, res) => {
+  try {
+    const projects = await Project.find({
+      $or: [
+        { isPublished: true },
+        { isPublished: { $exists: false } }
+      ]
+    }).sort({ createdAt: -1 });
+    
+    res.status(200).json({
+      success: true,
+      count: projects.length,
+      data: projects,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Fetch all projects including drafts (For Admin Dashboard)
+// @route   GET /api/projects/admin
+// @access  Private/Admin
+const getAdminProjects = async (req, res) => {
   try {
     const projects = await Project.find({}).sort({ createdAt: -1 });
     res.status(200).json({
@@ -41,7 +63,7 @@ const getProjectById = async (req, res) => {
 // @access  Private/Admin
 const createProject = async (req, res) => {
   try {
-    const { title, description, techStack, liveUrl, githubUrl, subPathUrl, imageUrl, featured } = req.body;
+    const { title, description, techStack, liveUrl, githubUrl, subPathUrl, imageUrl, featured, isPublished } = req.body;
 
     const project = await Project.create({
       title,
@@ -52,6 +74,7 @@ const createProject = async (req, res) => {
       subPathUrl,
       imageUrl,
       featured,
+      isPublished: isPublished !== undefined ? isPublished : true,
     });
 
     res.status(201).json({
@@ -74,7 +97,7 @@ const updateProject = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Project not found' });
     }
 
-    const { title, description, techStack, liveUrl, githubUrl, subPathUrl, imageUrl, featured } = req.body;
+    const { title, description, techStack, liveUrl, githubUrl, subPathUrl, imageUrl, featured, isPublished } = req.body;
 
     project = await Project.findByIdAndUpdate(
       req.params.id,
@@ -87,6 +110,7 @@ const updateProject = async (req, res) => {
         subPathUrl,
         imageUrl,
         featured,
+        isPublished,
       },
       {
         new: true,
@@ -127,6 +151,7 @@ const deleteProject = async (req, res) => {
 
 module.exports = {
   getProjects,
+  getAdminProjects,
   getProjectById,
   createProject,
   updateProject,
