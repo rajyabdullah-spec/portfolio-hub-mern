@@ -13,6 +13,7 @@ Portfolio Hub is a modern, production-ready Full-Stack MERN (MongoDB, Express.js
 - **Hero Section & Bio:** Highlighting professional skills, full-stack overview, and interactive email clipboard button with instant feedback.
 - **3D Perspective Project Cards:** Interactive cards featuring cursor-following glow effects, dynamic 3D tilt responsiveness, and intelligent action buttons adapting to project types (Live Apps, Interactive GIFs, or pure Code Modules).
 - **Dedicated Portfolio Showcase:** Advanced exact-match category filtering and real-time keyword search engine organizing 76 chronological milestones across specialized tech stacks without bleed-over.
+- **Flexible Grid/List View & Deep Link Sharing:** Interactive layout toggle between 3D Grid cards and detailed List rows, featuring direct custom domain deep-linking (`raji-dev.nl/portfolio#project-id`) with Open Graph social preview meta tags.
 - **Interactive Skills Badges:** Real-time database-synced skill badges displaying dynamic project counters and category highlights.
 - **Interactive Contact Experience:** Dedicated contact page featuring direct messaging, contact info cards, ambient backdrop glows, and a 3D flying paper plane success animation.
 - **Multi-Page Routing System:** Clean page navigation via React Router (`/`, `/about`, `/portfolio`, `/contact`) with active nav indicators.
@@ -23,14 +24,18 @@ Portfolio Hub is a modern, production-ready Full-Stack MERN (MongoDB, Express.js
 - **JWT Authentication:** Stateful user authentication backed by secure HTTP-Only Cookies with cross-origin credential passing.
 - **Protected Routes Guard:** Restricts `/admin` access strictly to authorized administrators (`protect` & `adminOnly` middleware).
 - **Advanced Dashboard Engine:** 
-  * Features real-time search filtering, lightweight rendering, instant manual refresh capability, and smart pagination for large project datasets.
-  * Optimistic UI state updates for immediate unread-to-read inbox status switching.
+  * Features real-time category filtering, lightweight rendering, instant manual refresh capability, and smart pagination for large project datasets.
+  * Preview Modal Architecture protecting destructive actions (edit/delete) behind explicit view interactions.
+- **Draft Management System:** Toggle project visibility between public showcase (`isPublished: true`) and internal draft state (`isPublished: false`).
 - **Full Dynamic Content Management (CRUD):**
   * **Create:** Add new projects with dynamic tech stack chips, URL routing (Live Demo, GIF Media, Specific Source Folder, and Main Repo Root).
-  * **Read:** Fetch live projects dynamically from MongoDB.
+  * **Read:** Fetch live projects and draft entries dynamically from MongoDB Atlas.
   * **Update:** Edit existing project details instantly via pre-filled admin modals.
   * **Delete:** Remove outdated projects with custom confirmation modal guards.
-  * **Inbox Management:** Read, mark as read, reply via direct mail link, and manage client contact inquiries.
+- **Advanced Inbox & Bulk Operations:**
+  * Categorized message filtering (All, Unread, Starred/Starred Favorites).
+  * Individual message starring and read status toggling.
+  * High-performance Bulk Actions (Bulk Delete & Bulk Mark as Read) using optimized MongoDB Atlas queries.
 
 ---
 
@@ -126,14 +131,23 @@ The application will be accessible at `http://localhost:5173`.
 - `POST /api/auth/login` — Public — Authenticates admin & sets HTTP-Only Cookie
 - `GET /api/auth/me` — Private — Verifies current active user session
 - `POST /api/auth/logout` — Private — Clears authentication cookie
-- `GET /api/projects` — Public — Fetches all portfolio items chronologically
+- `GET /api/projects` — Public — Fetches published portfolio items chronologically
+- `GET /api/projects/admin` — Private (Admin) — Fetches all portfolio items including draft entries
 - `POST /api/projects` — Private (Admin) — Creates a new project entry
 - `PUT /api/projects/:id` — Private (Admin) — Updates an existing project by ID
 - `DELETE /api/projects/:id` — Private (Admin) — Deletes a project by ID
 - `POST /api/messages` — Public — Submits contact message to database
 - `GET /api/messages` — Private (Admin) — Retrieves all user contact inquiries
 - `PUT /api/messages/:id/read` — Private (Admin) — Marks a contact message as read
+- `PUT /api/messages/:id/star` — Private (Admin) — Toggles starred/favorite status of a message
 - `DELETE /api/messages/:id` — Private (Admin) — Deletes a contact message by ID
+- `POST /api/messages/bulk-delete` — Private (Admin) — Simultaneously deletes multiple selected messages
+- `POST /api/messages/bulk-read` — Private (Admin) — Simultaneously marks multiple selected messages as read
+
+---
+
+## License
+Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
 
