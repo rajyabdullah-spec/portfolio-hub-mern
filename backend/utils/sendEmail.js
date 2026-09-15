@@ -1,23 +1,26 @@
 const nodemailer = require('nodemailer');
 
 const sendEmailNotification = async ({ senderName, email, subject, message }) => {
-  // Check if SMTP environment variables are configured
   if (!process.env.SMTP_EMAIL || !process.env.SMTP_PASSWORD) {
     console.log('[EMAIL] SMTP credentials not set, skipping notification delivery.');
     return;
   }
 
   try {
+    // Explicit SMTP configuration with SSL Port 465 for Render & Cloud compatibility
     const transporter = nodemailer.createTransport({
-      service: process.env.SMTP_SERVICE || 'gmail',
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true, // true for 465 (SSL)
       auth: {
         user: process.env.SMTP_EMAIL,
-        pass: process.env.SMTP_PASSWORD, // App Password if using Gmail
+        pass: process.env.SMTP_PASSWORD.replace(/\s+/g, ''), // Strip spaces if present
       },
+      connectionTimeout: 10000, // 10 seconds timeout
     });
 
     const mailOptions = {
-      from: `"Portfolio Hub Notification" <${process.env.SMTP_EMAIL}>`,
+      from: `"Portfolio Hub" <${process.env.SMTP_EMAIL}>`,
       to: process.env.ADMIN_NOTIFY_EMAIL || process.env.SMTP_EMAIL,
       replyTo: email,
       subject: `[New Inquiry] ${subject || 'Portfolio Message'} - ${senderName}`,
