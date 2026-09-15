@@ -38,15 +38,21 @@ const getAdminProjects = async (req, res) => {
   }
 };
 
-// @desc    Fetch single project by ID
+// @desc    Fetch single project by ID (Enforces published status for public access)
 // @route   GET /api/projects/:id
 // @access  Public
 const getProjectById = async (req, res) => {
   try {
-    const project = await Project.findById(req.params.id);
+    const project = await Project.findOne({
+      _id: req.params.id,
+      $or: [
+        { isPublished: true },
+        { isPublished: { $exists: false } }
+      ]
+    });
 
     if (!project) {
-      return res.status(404).json({ success: false, message: 'Project not found' });
+      return res.status(404).json({ success: false, message: 'Project not found or is not published' });
     }
 
     res.status(200).json({

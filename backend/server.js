@@ -4,6 +4,7 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const mongoSanitize = require('express-mongo-sanitize');
 
 const connectDB = require('./config/db');
 const seedAdminUser = require('./utils/seeder');
@@ -32,7 +33,7 @@ app.use(
   })
 );
 
-// Rate Limiting (100 requests per 15 minutes per IP)
+// Global Rate Limiting (100 requests per 15 minutes per IP)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -43,7 +44,18 @@ const limiter = rateLimit({
     message: 'Too many requests from this IP, please try again after 15 minutes',
   },
 });
-app.use('/api', limiter);
+
+// Dedicated strict Rate Limiter for Authentication / Login endpoint
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: 'Too many login attempts from this IP, please try again after 15 minutes',
+  },
+});
 
 // Allowed Origins for CORS (Support env for Production deployment)
 const allowedOrigins = [
@@ -57,7 +69,6 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests with no origin (like Postman or server-to-server)
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
@@ -73,8 +84,18 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Express 5 Safe NoSQL Injection Sanitizer
+app.use((req, res, next) => {
+  if (req.body) mongoSanitize.sanitize(req.body);
+  if (req.params) mongoSanitize.sanitize(req.params);
+  next();
+});
 
 app.use(cookieParser());
+
+// Apply rate limits
+app.use('/api/auth/login', authLimiter);
+app.use('/api', limiter);
 
 // System Health Check Endpoint
 app.get('/api/health', (req, res) => {

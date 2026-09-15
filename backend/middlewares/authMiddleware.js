@@ -1,28 +1,17 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-// Protect routes - Verify JWT Token from Cookies or Bearer Header
+// Protect routes - Strict verification via HTTP-Only Cookie
 const protect = async (req, res, next) => {
-  let token;
-
-  // 1. Check for token in HTTP-Only Cookie
-  if (req.cookies && req.cookies.token && req.cookies.token !== 'none') {
-    token = req.cookies.token;
-  }
-  // 2. Fallback check for Authorization Bearer Header
-  else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-    token = req.headers.authorization.split(' ')[1];
-  }
+  const token = req.cookies && req.cookies.token;
 
   if (!token || token === 'none') {
     return res.status(401).json({ success: false, message: 'Not authorized, no token provided' });
   }
 
   try {
-    // Verify token payload
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
-    // Support both decoded.id and decoded.userId
     const userId = decoded.id || decoded.userId;
     req.user = await User.findById(userId).select('-password');
 
