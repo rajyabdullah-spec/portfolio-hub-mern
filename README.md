@@ -2,8 +2,7 @@
 
 Portfolio Hub is a modern, production-ready Full-Stack MERN (MongoDB, Express.js, React.js, Node.js) web application engineered to showcase software development projects, accept direct client inquiries, and manage dynamic content via a secure, role-based Admin Panel.
 
-🌐 Live Application: https://raji-dev.nl
-
+🌐 Live Application: https://raji-dev.nl  
 🔗 API Health Check: https://portfolio-backend-api-h2pz.onrender.com/api/health
 
 ---
@@ -17,6 +16,7 @@ Portfolio Hub is a modern, production-ready Full-Stack MERN (MongoDB, Express.js
 - **Flexible Grid/List View & Deep Link Sharing**: Interactive layout toggle between 3D Grid cards and detailed List rows, featuring direct custom domain deep-linking (`raji-dev.nl/portfolio#project-id`) with Open Graph social preview meta tags.
 - **Interactive Skills Badges**: Real-time database-synced skill badges displaying dynamic project counters and category highlights.
 - **Interactive Contact Experience**: Dedicated contact page featuring direct messaging, contact info cards, ambient backdrop glows, and a 3D flying paper plane success animation.
+- **Dynamic SEO & Metadata Manager**: Route-aware metadata controller (`PageSEO`) updating document titles and Open Graph parameters dynamically during single-page navigation.
 - **Multi-Page Routing System & Smooth Navigation**: Clean page navigation via React Router (`/`, `/about`, `/portfolio`, `/contact`) featuring dynamic active route indicators, automatic ScrollToTop restoration on page changes, and a fully responsive animated mobile navigation menu.
 - **Modern UI & Responsive Design**: Built using React 19, Framer Motion, Tailwind CSS v4, and Lucide React icons.
 
@@ -26,6 +26,7 @@ Portfolio Hub is a modern, production-ready Full-Stack MERN (MongoDB, Express.js
 - **Strict Role-Based Guard**: Restricts `/admin` access strictly to authorized administrators via cookie inspection (`protect` & `adminOnly` middleware).
 - **NoSQL Injection Sanitization**: Middleware integration utilizing `express-mongo-sanitize` to strip unvalidated operator payloads across incoming request bodies and parameters.
 - **Granular Rate Limiting**: Dual-tier rate limiting with a dedicated 5-attempt threshold per 15 minutes on `/api/auth/login` to prevent credential stuffing, paired with a global API limiter.
+- **Anti-Spam Honeypot Guard**: Client-side hidden field trap paired with server-side validation to intercept automated spam submissions silently without requiring intrusive captchas.
 - **Advanced Dashboard Engine**: 
   * Features real-time category filtering, lightweight rendering, instant manual refresh capability, and smart pagination for large project datasets.
   * Preview Modal Architecture protecting destructive actions (edit/delete) behind explicit view interactions.
@@ -44,10 +45,11 @@ Portfolio Hub is a modern, production-ready Full-Stack MERN (MongoDB, Express.js
 
 ## Tech Stack & Architecture
 
-- **Frontend**: React 19, Vite, React Router DOM v7, Framer Motion, Axios, Tailwind CSS v4, Lucide Icons
+- **Frontend**: React 19, Vite (Rolldown engine with chunk splitting), React Router DOM v7, Framer Motion, Axios, Tailwind CSS v4, Lucide Icons
 - **Backend**: Node.js, Express.js (v5), RESTful API Architecture
 - **Database**: MongoDB Atlas & Mongoose ODM
-- **Security**: JSON Web Tokens (JWT), Bcrypt.js, HTTP-Only Cookies, Helmet.js, Express Mongo Sanitize, Express Rate Limit, Strict CORS
+- **Security**: JSON Web Tokens (JWT), Bcrypt.js, HTTP-Only Cookies, Helmet.js, Express Mongo Sanitize, Express Rate Limit, Anti-Spam Honeypot, Strict CORS
+- **Performance Optimization**: Route-level code splitting via `React.lazy` / `Suspense` and manual vendor chunking reducing initial bundle size to improve Lighthouse scores.
 - **Deployment & Hosting**:
   * Frontend: Vercel (Production Build with Custom SSL Domain: `raji-dev.nl`)
   * Backend: Render (Frankfurt Region) with reverse proxy trust configuration
@@ -73,10 +75,10 @@ portfolio-hub-mern/
 ├── client/                   # Vite React Frontend
 │   ├── src/
 │   │   ├── api/              # Axios Centralized Client (withCredentials: true)
-│   │   ├── components/       # Reusable UI Components
+│   │   ├── components/       # Reusable UI Components & PageSEO
 │   │   ├── context/          # Auth Context Provider
 │   │   ├── pages/            # View Pages (LoginPage, AdminDashboard)
-│   │   └── App.jsx           # Main Router Setup
+│   │   └── App.jsx           # Main Router & Dynamic Code-Splitting
 │   └── package.json
 │
 └── README.md                 # Project Documentation
@@ -95,10 +97,13 @@ cd portfolio-hub-mern
 
 ### 2. Backend Configuration
 Navigate to backend directory and install dependencies:
+```bash
 cd backend
 npm install
+```
 
-Create a .env file inside the backend folder:
+Create a `.env` file inside the `backend/` directory:
+```env
 PORT=5000
 NODE_ENV=development
 MONGO_URI=mongodb://127.0.0.1:27017/portfolio_hub
@@ -108,25 +113,34 @@ ADMIN_PASSWORD=your_secure_password
 JWT_EXPIRE=24h
 JWT_COOKIE_EXPIRE=1
 CLIENT_URL=http://localhost:5173
+```
 
-Seed initial Admin user and default projects (Optional):
-npm run seed
+Populate initial project records (Optional):
+```bash
+node seeder
+```
 
 Run Express Backend Server:
+```bash
 npm run dev
+```
 
 ### 3. Frontend Configuration
-Open a new terminal, navigate to the client directory and install dependencies:
+Open a new terminal, navigate to the `client/` directory and install dependencies:
+```bash
 cd client
 npm install
+```
 
-Create a .env file inside the client folder:
+Create a `.env` file inside the `client/` directory:
+```env
 VITE_API_URL=http://localhost:5000/api
+```
 
 Run Vite React Frontend:
+```bash
 npm run dev
-
-The application will be accessible at http://localhost:5173.
+```
 
 ---
 
@@ -143,7 +157,7 @@ The application will be accessible at http://localhost:5173.
 - POST /api/projects — Private (Admin) — Creates a new project entry
 - PUT /api/projects/:id — Private (Admin) — Updates an existing project by ID
 - DELETE /api/projects/:id — Private (Admin) — Deletes a project by ID
-- POST /api/messages — Public — Submits contact message to database
+- POST /api/messages — Public — Submits contact message to database (Protected with Honeypot)
 - GET /api/messages — Private (Admin) — Retrieves all user contact inquiries
 - PUT /api/messages/:id/read — Private (Admin) — Marks a contact message as read
 - PUT /api/messages/:id/star — Private (Admin) — Toggles starred/favorite status of a message
