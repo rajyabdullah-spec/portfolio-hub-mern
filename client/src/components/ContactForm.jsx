@@ -10,6 +10,7 @@ const ContactForm = () => {
     email: '',
     subject: '',
     message: '',
+    faxNumber: '', // Honeypot trap field
   });
   const [loading, setLoading] = useState(false);
   const [isSent, setIsSent] = useState(false);
@@ -57,7 +58,7 @@ const ContactForm = () => {
       await API.post('/messages', formData);
       setLoading(false);
       setIsSent(true);
-      setFormData({ senderName: '', email: '', subject: '', message: '' });
+      setFormData({ senderName: '', email: '', subject: '', message: '', faxNumber: '' });
       toast.success('Thank you! Your message has been sent successfully.');
     } catch (err) {
       setLoading(false);
@@ -180,7 +181,7 @@ const ContactForm = () => {
             <Sparkles className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
             <p>
               <strong className="text-slate-200 font-semibold block mb-0.5">Quick Delivery Guarantee</strong>
-              Messages are sent directly to my database inbox with real-time notification capability.
+              Messages trigger direct email alerts and are indexed immediately in the admin panel.
             </p>
           </div>
         </div>
@@ -217,6 +218,20 @@ const ContactForm = () => {
                   </div>
 
                   <form onSubmit={handleSubmit} className="space-y-4">
+                    {/* Honeypot Hidden Input - Inaccessible to humans, traps automated bot submission */}
+                    <div className="hidden" aria-hidden="true" style={{ display: 'none', position: 'absolute', left: '-9999px' }}>
+                      <label htmlFor="faxNumber">Do not fill this field</label>
+                      <input
+                        type="text"
+                        id="faxNumber"
+                        name="faxNumber"
+                        tabIndex="-1"
+                        autoComplete="off"
+                        value={formData.faxNumber}
+                        onChange={handleChange}
+                      />
+                    </div>
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-xs font-semibold text-slate-300 mb-1">Your Name</label>
@@ -332,7 +347,7 @@ const ContactForm = () => {
                   >
                     <h4 className="text-2xl font-extrabold text-white">Message Delivered!</h4>
                     <p className="text-xs text-slate-400 leading-relaxed">
-                      Thank you for reaching out! Your message has flown straight to my inbox and saved to the admin panel.
+                      Thank you for reaching out! Your message has been saved to the control center and sent to my inbox.
                     </p>
                   </motion.div>
 

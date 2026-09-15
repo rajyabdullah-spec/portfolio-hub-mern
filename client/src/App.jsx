@@ -5,21 +5,21 @@ import { Loader2 } from 'lucide-react';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import ScrollToTop from './components/ScrollToTop';
+import PageSEO from './components/PageSEO';
 import Navbar from './components/Navbar';
 import MobileBottomNav from './components/MobileBottomNav';
 import Footer from './components/Footer';
 
-// Keep critical entry component eagerly loaded
+// Critical hero component eagerly loaded
 import Hero from './components/Hero';
 
-// Lazy-loaded route components for optimal initial payload
+// Lazy-loaded routes
 const AboutAndSkills = lazy(() => import('./components/AboutAndSkills'));
 const PortfolioGrid = lazy(() => import('./components/PortfolioGrid'));
 const ContactForm = lazy(() => import('./components/ContactForm'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 
-// Modern, lightweight fallback loader matching the dark design system
 const PageLoaderFallback = () => (
   <div className="flex flex-col justify-center items-center min-h-[60vh] space-y-3 select-none">
     <Loader2 className="w-8 h-8 text-emerald-400 animate-spin" />
@@ -32,6 +32,7 @@ function App() {
     <AuthProvider>
       <Router>
         <ScrollToTop />
+        <PageSEO />
         <Toaster
           position="top-right"
           toastOptions={{

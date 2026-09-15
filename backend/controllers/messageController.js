@@ -1,11 +1,22 @@
 const Message = require('../models/Message');
+const sendEmailNotification = require('../utils/sendEmail');
 
-// @desc    Send a new contact message
+// @desc    Send a new contact message (Protected with Honeypot)
 // @route   POST /api/messages
 // @access  Public
 const sendMessage = async (req, res) => {
   try {
-    const { senderName, email, subject, message } = req.body;
+    const { senderName, email, subject, message, faxNumber } = req.body;
+
+    // Honeypot trap: Bots fill this hidden field; humans leave it empty
+    if (faxNumber) {
+      console.warn(`[SPAM BLOCKED] Honeypot field filled by suspected bot: ${email}`);
+      // Return 201 to deceive the bot without saving spam to the database
+      return res.status(201).json({
+        success: true,
+        message: 'Message processed successfully',
+      });
+    }
 
     if (!senderName || !email || !message) {
       return res.status(400).json({ success: false, message: 'Please provide name, email, and message content' });
@@ -17,6 +28,9 @@ const sendMessage = async (req, res) => {
       subject,
       message,
     });
+
+    // Send email alert asynchronously without blocking response
+    sendEmailNotification({ senderName, email, subject, message });
 
     res.status(201).json({
       success: true,
