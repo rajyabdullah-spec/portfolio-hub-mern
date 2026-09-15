@@ -1,18 +1,31 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+import { Loader2 } from 'lucide-react';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import ScrollToTop from './components/ScrollToTop';
 import Navbar from './components/Navbar';
 import MobileBottomNav from './components/MobileBottomNav';
 import Footer from './components/Footer';
+
+// Keep critical entry component eagerly loaded
 import Hero from './components/Hero';
-import AboutAndSkills from './components/AboutAndSkills';
-import PortfolioGrid from './components/PortfolioGrid';
-import ContactForm from './components/ContactForm';
-import LoginPage from './pages/LoginPage';
-import AdminDashboard from './pages/AdminDashboard';
+
+// Lazy-loaded route components for optimal initial payload
+const AboutAndSkills = lazy(() => import('./components/AboutAndSkills'));
+const PortfolioGrid = lazy(() => import('./components/PortfolioGrid'));
+const ContactForm = lazy(() => import('./components/ContactForm'));
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+
+// Modern, lightweight fallback loader matching the dark design system
+const PageLoaderFallback = () => (
+  <div className="flex flex-col justify-center items-center min-h-[60vh] space-y-3 select-none">
+    <Loader2 className="w-8 h-8 text-emerald-400 animate-spin" />
+    <span className="text-xs font-mono text-slate-500 tracking-wider">Loading module...</span>
+  </div>
+);
 
 function App() {
   return (
@@ -48,21 +61,23 @@ function App() {
         <div className="min-h-screen flex flex-col justify-between bg-slate-950 text-slate-100 pb-16 sm:pb-0">
           <Navbar />
           <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <Routes>
-              <Route path="/" element={<Hero />} />
-              <Route path="/about" element={<AboutAndSkills />} />
-              <Route path="/portfolio" element={<PortfolioGrid />} />
-              <Route path="/contact" element={<ContactForm />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route 
-                path="/admin" 
-                element={
-                  <ProtectedRoute>
-                    <AdminDashboard />
-                  </ProtectedRoute>
-                } 
-              />
-            </Routes>
+            <Suspense fallback={<PageLoaderFallback />}>
+              <Routes>
+                <Route path="/" element={<Hero />} />
+                <Route path="/about" element={<AboutAndSkills />} />
+                <Route path="/portfolio" element={<PortfolioGrid />} />
+                <Route path="/contact" element={<ContactForm />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route 
+                  path="/admin" 
+                  element={
+                    <ProtectedRoute>
+                      <AdminDashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+              </Routes>
+            </Suspense>
           </main>
           <Footer />
           <MobileBottomNav />
