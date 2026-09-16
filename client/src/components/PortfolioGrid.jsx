@@ -1,7 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FolderGit2, Loader2, Filter, ChevronDown, ChevronUp, Search, X, Sparkles, LayoutGrid, List, ArrowRight, ExternalLink, Code2, PlayCircle } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { 
+  FolderGit2, Filter, ChevronDown, ChevronUp, Search, 
+  X, Sparkles, LayoutGrid, List, ArrowRight, ExternalLink, 
+  Code2, PlayCircle 
+} from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
 import ProjectCard3D from './ProjectCard3D';
 import API from '../api/axios';
 
@@ -9,24 +13,44 @@ const CATEGORIES = ['All', 'HTML & CSS', 'Vanilla JS', 'Algorithms', 'AJAX & API
 const ITEMS_PER_PAGE = 6;
 
 const PortfolioGrid = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialCategory = searchParams.get('category') || 'All';
+
   const [projects, setProjects] = useState([]);
-  const [filteredProjects, setFilteredProjects] = useState([]);
-  const [activeCategory, setActiveCategory] = useState('All');
+  const [activeCategory, setActiveCategory] = useState(
+    CATEGORIES.includes(initialCategory) ? initialCategory : 'All'
+  );
   const [searchQuery, setSearchQuery] = useState('');
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
-  const [viewMode, setViewMode] = useState('grid');
+  const [viewMode, setViewMode] = useState(() => localStorage.getItem('portfolio_view') || 'grid');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const handleViewModeChange = (mode) => {
+    setViewMode(mode);
+    localStorage.setItem('portfolio_view', mode);
+  };
+
+  const handleCategoryChange = (cat) => {
+    setActiveCategory(cat);
+    setVisibleCount(ITEMS_PER_PAGE);
+    if (cat === 'All') {
+      searchParams.delete('category');
+      setSearchParams(searchParams);
+    } else {
+      setSearchParams({ category: cat });
+    }
+  };
 
   const isProjectInCategory = (project, category) => {
     if (category === 'All') return true;
 
     const techs = (project.techStack || []).map(t => t.toLowerCase());
-    const hasReact = techs.includes('react') || techs.includes('react 18');
-    const hasNode = techs.includes('node.js');
+    const hasReact = techs.includes('react') || techs.includes('react 18') || techs.includes('react 19');
+    const hasNode = techs.includes('node.js') || techs.includes('node');
     const hasAjax = techs.includes('ajax');
     const hasAlgo = techs.includes('algorithms');
-    const hasJS = techs.includes('javascript');
+    const hasJS = techs.includes('javascript') || techs.includes('js');
     const hasHtmlCss = techs.includes('html5') || techs.includes('css3') || techs.includes('bootstrap') || techs.includes('bootstrap 5') || techs.includes('materialize css');
 
     switch (category) {
@@ -58,7 +82,6 @@ const PortfolioGrid = () => {
         
         if (isMounted) {
           setProjects(strictlyOrderedData);
-          setFilteredProjects(strictlyOrderedData);
         }
       } catch (err) {
         if (isMounted) {
@@ -78,8 +101,7 @@ const PortfolioGrid = () => {
     };
   }, []);
 
-  useEffect(() => {
-    setVisibleCount(ITEMS_PER_PAGE);
+  const filteredProjects = useMemo(() => {
     let result = projects.filter(project => isProjectInCategory(project, activeCategory));
 
     if (searchQuery.trim()) {
@@ -90,9 +112,8 @@ const PortfolioGrid = () => {
         (project.techStack || []).some(tech => tech.toLowerCase().includes(query))
       );
     }
-
-    setFilteredProjects(result);
-  }, [activeCategory, searchQuery, projects]);
+    return result;
+  }, [projects, activeCategory, searchQuery]);
 
   const displayedProjects = filteredProjects.slice(0, visibleCount);
   const hasMore = visibleCount < filteredProjects.length;
@@ -120,7 +141,6 @@ const PortfolioGrid = () => {
       </div>
 
       <div className="space-y-6 mb-10">
-        {/* Responsive Controls Wrapper */}
         <div className="flex flex-row items-center justify-between gap-3 max-w-4xl mx-auto w-full">
           <div className="relative flex-1">
             <Search className="w-4 h-4 sm:w-5 sm:h-5 absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 text-slate-500" />
@@ -128,7 +148,7 @@ const PortfolioGrid = () => {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search projects..."
+              placeholder="Search projects by name, keyword, or tech..."
               className="w-full pl-10 sm:pl-12 pr-10 py-2.5 sm:py-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 text-slate-100 text-xs sm:text-sm focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder-slate-500 shadow-inner"
             />
             {searchQuery && (
@@ -141,29 +161,30 @@ const PortfolioGrid = () => {
             )}
           </div>
 
-          {/* View Mode Toggle - Fixed Size */}
           <div className="flex items-center bg-slate-900 border border-slate-800 rounded-2xl p-1 shrink-0">
             <button
-              onClick={() => setViewMode('grid')}
-              className={`p-2 sm:p-2.5 rounded-xl transition-all ${
+              onClick={() => handleViewModeChange('grid')}
+              className={`p-2 sm:p-2.5 rounded-xl transition-all cursor-pointer ${
                 viewMode === 'grid' ? 'bg-slate-800 text-emerald-400 shadow-sm' : 'text-slate-500 hover:text-slate-300'
               }`}
+              title="Grid View"
             >
               <LayoutGrid className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
             <button
-              onClick={() => setViewMode('list')}
-              className={`p-2 sm:p-2.5 rounded-xl transition-all ${
+              onClick={() => handleViewModeChange('list')}
+              className={`p-2 sm:p-2.5 rounded-xl transition-all cursor-pointer ${
                 viewMode === 'list' ? 'bg-slate-800 text-emerald-400 shadow-sm' : 'text-slate-500 hover:text-slate-300'
               }`}
+              title="List View"
             >
               <List className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
         </div>
 
-        <div className="flex flex-wrap justify-center items-center gap-2 pt-2">
-          <Filter className="w-4 h-4 text-slate-500 mr-1 hidden sm:block" />
+        <div className="flex overflow-x-auto sm:flex-wrap justify-start sm:justify-center items-center gap-2 pt-2 pb-2 px-1 scrollbar-none">
+          <Filter className="w-4 h-4 text-slate-500 mr-1 hidden sm:block shrink-0" />
           {CATEGORIES.map(category => {
             const categoryCount = projects.filter(p => isProjectInCategory(p, category)).length;
             const isActive = activeCategory === category;
@@ -171,8 +192,8 @@ const PortfolioGrid = () => {
             return (
               <button
                 key={category}
-                onClick={() => setActiveCategory(category)}
-                className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-300 cursor-pointer border hover:-translate-y-0.5 active:translate-y-0 ${
+                onClick={() => handleCategoryChange(category)}
+                className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-300 cursor-pointer border whitespace-nowrap shrink-0 hover:-translate-y-0.5 active:translate-y-0 ${
                   isActive
                     ? 'bg-gradient-to-r from-emerald-600 to-teal-500 text-white shadow-lg shadow-emerald-500/25 border-emerald-400/50'
                     : 'bg-slate-900/80 text-slate-400 hover:text-emerald-400 border-slate-800/80 hover:border-emerald-500/40 hover:bg-slate-800/60'
@@ -234,7 +255,6 @@ const PortfolioGrid = () => {
           >
             <AnimatePresence>
               {displayedProjects.map((project) => {
-                
                 const hasLiveApp = Boolean(project.liveUrl) && project.liveUrl.includes('http');
                 const hasGifDemo = Boolean(project.imageUrl) && project.imageUrl.length > 0;
                 const directFolderUrl = project.subPathUrl || project.githubUrl || '';
@@ -259,10 +279,11 @@ const PortfolioGrid = () => {
                     {viewMode === 'grid' ? (
                       <ProjectCard3D project={project} />
                     ) : (
-                      /* Fully Expanded Horizontal List Row Card */
-                      <div className="w-full flex flex-col md:flex-row md:items-center justify-between gap-5 p-5 sm:p-6 rounded-3xl bg-slate-900/90 border border-slate-800/80 hover:border-emerald-500/40 transition-all shadow-lg backdrop-blur-sm group">
+                      /* Clean, Lightweight List Row Card without Media Elements */
+                      <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-slate-900/90 border border-slate-800/80 hover:border-emerald-500/40 transition-all shadow-lg backdrop-blur-sm group">
                         
-                        <div className="flex-1 space-y-2.5 min-w-0">
+                        {/* Information Section */}
+                        <div className="flex-1 space-y-2 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
                             <span className={`text-[10px] font-mono px-2.5 py-0.5 rounded-full border shadow-sm ${
                               hasLiveApp
@@ -274,12 +295,15 @@ const PortfolioGrid = () => {
                               {hasLiveApp ? '● Live Application' : hasGifDemo ? '🎬 Interactive Demo' : '💻 Code Module'}
                             </span>
                           </div>
-                          <h3 className="text-lg font-bold text-white group-hover:text-emerald-400 transition-colors truncate">
+
+                          <h3 className="text-base sm:text-lg font-bold text-white group-hover:text-emerald-400 transition-colors break-words sm:truncate">
                             {project.title}
                           </h3>
+
                           <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
                             {project.description}
                           </p>
+
                           <div className="flex flex-wrap gap-1.5 pt-1">
                             {(project.techStack || []).slice(0, 6).map((tech, i) => (
                               <span key={i} className="text-[10px] font-mono px-2 py-0.5 rounded-lg bg-slate-800/90 text-slate-300 border border-slate-700/50">
@@ -289,14 +313,16 @@ const PortfolioGrid = () => {
                           </div>
                         </div>
                         
-                        <div className="flex items-center gap-2.5 shrink-0 pt-3 md:pt-0 border-t md:border-t-0 border-slate-800/80">
-                          <div className="flex items-center gap-1.5">
+                        {/* Responsive Button Group */}
+                        <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0 pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-800/80 w-full sm:w-auto">
+                          
+                          <div className="flex items-center gap-1.5 shrink-0">
                             {directFolderUrl && (
                               <a
                                 href={directFolderUrl}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 transition-all hover:-translate-y-0.5 active:translate-y-0"
+                                className="p-2 sm:p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 transition-all hover:-translate-y-0.5 active:translate-y-0"
                                 title="View Direct Project Code Folder"
                               >
                                 <Code2 className="w-4 h-4" />
@@ -306,44 +332,47 @@ const PortfolioGrid = () => {
                               href={mainRepoUrl}
                               target="_blank"
                               rel="noreferrer"
-                              className="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 transition-all hover:-translate-y-0.5 active:translate-y-0"
+                              className="p-2 sm:p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 transition-all hover:-translate-y-0.5 active:translate-y-0"
                               title="Open Repository Root"
                             >
                               <FolderGit2 className="w-4 h-4" />
                             </a>
                           </div>
 
-                          {hasLiveApp ? (
-                            <a
-                              href={project.liveUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-xs shadow-md shadow-emerald-500/20 transition-all border border-emerald-400/30 hover:-translate-y-0.5 active:translate-y-0"
-                            >
-                              <span>Live App</span>
-                              <ExternalLink className="w-3.5 h-3.5" />
-                            </a>
-                          ) : hasGifDemo ? (
-                            <a
-                              href={project.imageUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-500 hover:from-indigo-500 hover:to-purple-400 text-white font-bold text-xs shadow-md shadow-indigo-500/20 transition-all border border-indigo-400/30 hover:-translate-y-0.5 active:translate-y-0"
-                            >
-                              <PlayCircle className="w-3.5 h-3.5" />
-                              <span>Watch Demo</span>
-                            </a>
-                          ) : (
-                            <a
-                              href={directFolderUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-semibold text-xs transition-all border border-slate-700 hover:-translate-y-0.5 active:translate-y-0"
-                            >
-                              <Code2 className="w-3.5 h-3.5" />
-                              <span>Explore Code</span>
-                            </a>
-                          )}
+                          <div className="flex-1 sm:flex-initial flex justify-end">
+                            {hasLiveApp ? (
+                              <a
+                                href={project.liveUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 py-2 sm:py-2.5 px-3.5 sm:px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-xs shadow-md shadow-emerald-500/20 transition-all border border-emerald-400/30 hover:-translate-y-0.5 active:translate-y-0"
+                              >
+                                <span>Live App</span>
+                                <ExternalLink className="w-3.5 h-3.5" />
+                              </a>
+                            ) : hasGifDemo ? (
+                              <a
+                                href={project.imageUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 py-2 sm:py-2.5 px-3.5 sm:px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-500 hover:from-indigo-500 hover:to-purple-400 text-white font-bold text-xs shadow-md shadow-indigo-500/20 transition-all border border-indigo-400/30 hover:-translate-y-0.5 active:translate-y-0"
+                              >
+                                <PlayCircle className="w-3.5 h-3.5" />
+                                <span>Watch Demo</span>
+                              </a>
+                            ) : (
+                              <a
+                                href={directFolderUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 py-2 sm:py-2.5 px-3.5 sm:px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-semibold text-xs transition-all border border-slate-700 hover:-translate-y-0.5 active:translate-y-0"
+                              >
+                                <Code2 className="w-3.5 h-3.5" />
+                                <span>Explore Code</span>
+                              </a>
+                            )}
+                          </div>
+
                         </div>
                       </div>
                     )}
@@ -396,7 +425,6 @@ const PortfolioGrid = () => {
               <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 group-hover:translate-x-1.5 shrink-0" />
             </Link>
           </motion.div>
-
         </>
       )}
     </motion.section>
