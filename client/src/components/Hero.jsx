@@ -1,6 +1,15 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Terminal, Sparkles, FileText, CheckCircle2, User, ChevronRight } from 'lucide-react';
+import { 
+  ArrowRight, 
+  Terminal, 
+  Sparkles, 
+  FileText, 
+  CheckCircle2, 
+  User, 
+  ChevronRight, 
+  Download 
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Hero = () => {
@@ -112,15 +121,29 @@ const Hero = () => {
               <span>Get in Touch</span>
             </Link>
 
-            <a
-              href="/Raji_Al-Abdullah_CV.pdf"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-slate-900/60 hover:bg-slate-800/80 text-slate-400 hover:text-slate-200 border border-slate-800/80 font-mono text-xs transition-all hover:-translate-y-0.5 active:translate-y-0"
-            >
-              <FileText className="w-4 h-4 text-slate-400" />
-              <span>CV / Resume</span>
-            </a>
+            {/* Combined View & Download CV Split Button */}
+            <div className="inline-flex items-stretch rounded-xl bg-slate-900/60 border border-slate-800/80 shadow-md divide-x divide-slate-800/80 hover:border-slate-700 transition-all hover:-translate-y-0.5 active:translate-y-0">
+              <a
+                href="/Raji_Al-Abdullah_CV.pdf"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-3 text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 font-mono text-xs rounded-l-xl transition-colors"
+                title="View CV in new tab"
+              >
+                <FileText className="w-4 h-4 text-slate-400" />
+                <span>CV / Resume</span>
+              </a>
+
+              <a
+                href="/Raji_Al-Abdullah_CV.pdf"
+                download="Raji_Al-Abdullah_CV.pdf"
+                className="inline-flex items-center justify-center px-3 py-3 text-slate-400 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-r-xl transition-colors group"
+                title="Download CV directly (PDF)"
+                aria-label="Download CV"
+              >
+                <Download className="w-4 h-4 transition-transform duration-200 group-hover:translate-y-0.5" />
+              </a>
+            </div>
           </motion.div>
 
           {/* Tech Highlights */}
